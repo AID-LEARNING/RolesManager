@@ -1,0 +1,11 @@
+---
+name: Guest
+default: true
+priority: 0
+chatFormat: "[{&prefix}][{&role}]{&playerName}{&suffix} => {&message}"
+nameTagFormat: "[{&role}]{&playerName}"
+heritages: []
+permissions:
+  - pocketmine.command.me
+  - pocketmine.command.list
+...

@@ -1,0 +1,31 @@
+name: RoleManager
+authors:
+  - SenseiTarzan
+version: 1.0.0
+main: SenseiTarzan\RoleManager\Main
+api: 4.0.0
+permissions:
+  command.role.permission:
+    description: "Permet de voir la command role"
+    default: op
+  command.nameCustom.permission:
+    description: "Permet de voir la command role"
+    default: op
+  command.set-role.permission:
+    description: "Permet de mettre un role un joueur"
+    default: true
+  command.suffix.permission:
+    description: "Permet de mettre un suffix a un joueur"
+    default: op
+  command.prefix.permission:
+    description: "Permet de mettre un prefix a un joueur"
+    default: op
+  command.set-permissions.permission:
+    description: "Permet de mettre une ou des permissions a un joueur"
+    default: op
+  command.add-permissions.permission:
+    description: "Permet d'ajouter une ou des permissions a un joueur"
+    default: op
+  command.sub-permissions.permission:
+    description: "Permet d'enlever une ou des permissions a un joueur"
+    default: op
