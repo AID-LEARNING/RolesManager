@@ -30,4 +30,9 @@ class RoleArgument extends StringEnumArgument
     {
         return "role";
     }
+
+    public function getEnumName(): string
+    {
+        return "role";
+    }
 }

@@ -9,7 +9,7 @@ use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
-use SenseiTarzan\RoleManager\Commands\args\TargetPlayerArgument;
+use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationKeys;

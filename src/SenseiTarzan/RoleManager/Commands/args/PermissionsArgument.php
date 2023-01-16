@@ -41,6 +41,10 @@ class PermissionsArgument extends StringEnumArgument
 
     public function getTypeName(): string
     {
-        return "stringPermission";
+        return "stringpermission";
+    }
+    public function getEnumName(): string
+    {
+        return "stringpermission";
     }
 }

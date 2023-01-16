@@ -7,7 +7,7 @@ use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
-use SenseiTarzan\RoleManager\Commands\args\TargetPlayerArgument;
+use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 
