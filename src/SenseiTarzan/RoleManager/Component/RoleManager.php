@@ -95,8 +95,10 @@ class RoleManager
      */
     public function setDefaultRole(Role $defaultRole): void
     {
-        $this->defaultRole->setDefault(false);
-        $defaultRole->setDefault(true);
+        if (isset($this->defaultRole)) {
+            $this->defaultRole->setDefault(false);
+            $defaultRole->setDefault(true);
+        }
         $this->defaultRole = $defaultRole;
     }
 
