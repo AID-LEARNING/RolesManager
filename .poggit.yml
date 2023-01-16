@@ -11,5 +11,5 @@ projects:
         version: ^1.0.0
       - src: AID-LEARNING/libExtraPath/libExtraPathConfig
         version: ^1.0.0
-      - src: CortexPE/Commando/Commando
+      - src: Paroxity/Commando/Commando
         version: ^3.0.0
