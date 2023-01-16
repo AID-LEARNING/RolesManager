@@ -10,8 +10,8 @@ Configuration of the ``plugin_data/RoleManager/config.yml``
 | Key           | Description                                                                                                                                                                                                                                                                                | type             | obligatoire |
 |---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-------------|
 | name          | The name of the role that will be displayed any initialized colors will be deleted by the plugins passed by the chatformat.                                                                                                                                                                | string           | **yes**     |
-| changeName    | allows the player to change the name of his role without changing his role                                                                                                                                                                                                                 | boolean          | **yes**     |
-| default       | allows to know if the role is the default one for the player for the first connection.                                                                                                                                                                                                     | boolean          | **yes**     |
+| changeName    | allows the player to change the name of his role without changing his role                                                                                                                                                                                                                 | boolean          | **no** default is false    |
+| default       | allows to know if the role is the default one for the player for the first connection.                                                                                                                                                                                                     | boolean          | **no** default is false    |
 | priority      | Allows to structure the role with priorities.                                                                                                                                                                                                                                              | integer or float | **yes**     |
 | chatFormat    | this is the formatting on the role chat.                                                                                                                                                                                                                                                   | string           | **yes**     |
 | nameTagFormat | this is the formatting for the role nametag.                                                                                                                                                                                                                                               | string           | **yes**     |
@@ -35,7 +35,7 @@ permissions:
 ```
 
 # TextAttributeManager
-## ChatAttribute par défaut
+## Default ChatAttribute
 
 | Key               | Description                      | 
 |-------------------|----------------------------------|
@@ -43,7 +43,9 @@ permissions:
 | ``{&role}``       | give the role player             | 
 | ``{&prefix}``     | give the prefix player           |
 | ``{&suffix}``     | give the suffix player           |
-| ``{&message}``    | give the  message player         |
+| ``{&factionName}``| give the faction name player     |
+| ``{&factionRank}``| give the rank player in faction  |
+| ``{&message}``   | give the  message player          |
 | \n                | Allows you to return to the line |
 
 ## NameTagAttribute par défaut
@@ -54,6 +56,8 @@ permissions:
 | ``{&role}``       | give the role player             | 
 | ``{&prefix}``     | give the prefix player           |
 | ``{&suffix}``     | give the suffix player           |
+| ``{&factionName}``| give the faction name player     |
+| ``{&factionRank}``| give the rank player in faction  |
 | \n                | Allows you to return to the line |
 ## Create a ChatAttribute
 #### This allows you to create your own ``{&...}`` for the chatFormat
@@ -228,8 +232,8 @@ Configuration de la ``plugin_data/RoleManager/config.yml``
 | Clé             | Description                                                                                                                                                                                                                                                                                      | type attendu             | obligatoire   |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|---------------|
 | name            | Le nom du role qui sera afficher toute colors initialiser sera supprime par le plugins passe par le chatformat.                                                                                                                                                                                  | texte                    | **oui**      
-| changeName | permet au joueur de changer le nom de son rôle sans changer son rôle | true ou false   |**oui**       |
-| default | permet de savoir si le role et celui mis par défaut au joueur pour le premier connection. | true ou false            | **oui**       |
+| changeName | permet au joueur de changer le nom de son rôle sans changer son rôle | true ou false   |**non** false par défaut      |
+| default | permet de savoir si le role et celui mis par défaut au joueur pour le premier connection. | true ou false            | **non** false par défaut      |
 | priority        | Permet de structure le role avec des priority en nombre. | nombre entier ou decimal | **oui**       |
 | chatFormat      | ceci est le formatage sur le chat du role. | texte                    | **oui**       |
 | nameTagFormat   | ceci est le formatage pour le nametag du role. | texte                    | **oui**       |
@@ -261,6 +265,8 @@ permissions:
 | ``{&role}``       | donne le role du joueur       | 
 | ``{&prefix}``     | donne le prefix du jouer      |
 | ``{&suffix}``     | donne le suffix du jouer      |
+| ``{&factionName}``| donne le nom de la faction du joueur     |
+| ``{&factionRank}``| donne le rang du joueur dans la faction  |
 | ``{&message}``    | donne le message du joueur    |
 | \n                | Permet de retourne a la ligne |
 
@@ -272,6 +278,8 @@ permissions:
 | ``{&role}``       | donne le role du joueur       | 
 | ``{&prefix}``     | donne le prefix du jouer      |
 | ``{&suffix}``     | donne le suffix du jouer      |
+| ``{&factionName}``| donne le nom de la faction du joueur     |
+| ``{&factionRank}``| donne le rang du joueur dans la faction  |
 | \n                | Permet de retourne a la ligne |
 ## Creation de un ChatAttribut
 #### Cela permet de créer votre propre ``{&...}`` pour le chatFormat
