@@ -227,8 +227,7 @@ Configuration de la ``plugin_data/RoleManager/config.yml``
 
 | Clé             | Description                                                                                                                                                                                                                                                                                      | type attendu             | obligatoire   |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|---------------|
-| name            | Le nom du role qui sera afficher toute colors initialiser sera supprime par le plugins passe par le chatformat.                                                                                                                                                                                  | texte                    | **oui**       |
-
+| name            | Le nom du role qui sera afficher toute colors initialiser sera supprime par le plugins passe par le chatformat.                                                                                                                                                                                  | texte                    | **oui**      
 | changeName | permet au joueur de changer le nom de son rôle sans changer son rôle | true ou false   |**oui**       |
 | default | permet de savoir si le role et celui mis par défaut au joueur pour le premier connection. | true ou false            | **oui**       |
 | priority        | Permet de structure le role avec des priority en nombre. | nombre entier ou decimal | **oui**       |
