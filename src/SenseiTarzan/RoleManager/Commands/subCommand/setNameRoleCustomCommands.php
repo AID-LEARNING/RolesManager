@@ -36,9 +36,9 @@ class setNameRoleCustomCommands extends BaseSubCommand
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
             return;
         }
-        $prefix = $args['prefix'];
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $prefix)));
-        RoleManager::getInstance()->setNameRoleCustom($target, $prefix);
+        $nameCustom = $args['nameCustom'];
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $nameCustom)));
+        RoleManager::getInstance()->setNameRoleCustom($target, $nameCustom);
 
     }
 }
