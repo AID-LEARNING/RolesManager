@@ -10,6 +10,7 @@ Configuration of the ``plugin_data/RoleManager/config.yml``
 | Key           | Description                                                                                                                                                                                                                                                                                | type             | obligatoire |
 |---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|-------------|
 | name          | The name of the role that will be displayed any initialized colors will be deleted by the plugins passed by the chatformat.                                                                                                                                                                | string           | **yes**     |
+| changeName    | allows the player to change the name of his role without changing his role                                                                                                                                                                                                                 | boolean          | **yes**     |
 | default       | allows to know if the role is the default one for the player for the first connection.                                                                                                                                                                                                     | boolean          | **yes**     |
 | priority      | Allows to structure the role with priorities.                                                                                                                                                                                                                                              | integer or float | **yes**     |
 | chatFormat    | this is the formatting on the role chat.                                                                                                                                                                                                                                                   | string           | **yes**     |
@@ -227,22 +228,24 @@ Configuration de la ``plugin_data/RoleManager/config.yml``
 | Clé             | Description                                                                                                                                                                                                                                                                                      | type attendu             | obligatoire   |
 |-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|---------------|
 | name            | Le nom du role qui sera afficher toute colors initialiser sera supprime par le plugins passe par le chatformat.                                                                                                                                                                                  | texte                    | **oui**       |
-| default         | permet de savoir si le role et celui mis par défaut au joueur pour la premier connection.                                                                                                                                                                                                        | true ou false            | **oui**       |
-| priority        | Permet de structure le role avec des priorite en numbre.                                                                                                                                                                                                                                         | numbre entier ou decimal | **oui**       |
-| chatFormat      | ceci est le fomatage sur le chat du role.                                                                                                                                                                                                                                                        | texte                    | **oui**       |
-| nameTagFormat   | ceci est le formatage pour le nametag du role.                                                                                                                                                                                                                                                   | texte                    | **oui**       |
-| heritages       | comment sa fonctionne cela recuperer les permissions du role et de c'est heritage.<br/> il faut mettre l'id du role et pour cela c'est tous simple vous devais mettre le nom en minuscule et replace les espaces par des underscore ( _ ).<br/> Exemple: <br/>Sorcier Mage de vient sorcier_mage | array                    | **oui**       |
-| permissions     | ce si est la parti pour gere les permissiosn du role.                                                                                                                                                                                                                                            | array                    | **oui**       |
+
+| changeName | permet au joueur de changer le nom de son rôle sans changer son rôle | true ou false   |**oui**       |
+| default | permet de savoir si le role et celui mis par défaut au joueur pour le premier connection. | true ou false            | **oui**       |
+| priority        | Permet de structure le role avec des priority en nombre. | nombre entier ou decimal | **oui**       |
+| chatFormat      | ceci est le formatage sur le chat du role. | texte                    | **oui**       |
+| nameTagFormat   | ceci est le formatage pour le nametag du role. | texte                    | **oui**       |
+| heritages       | comment ça fonctionne cela recuperer les permissions du role et de c'est heritage.<br/> il faut mettre l'id du role et pour cela, c'est tout simple vous devais mettre le nom en minuscule et replace les espaces par des underscore ( _ ).<br/> Exemple: <br/>Sorcier Mage de vient sorcier_mage | array                    | **oui**       |
+| permissions | ce si est la partie pour gere les permissions du role. | array                    | **oui**       |
 
 Votre fichier doit être dans ``plugin_data/RoleManager/roles`` car sinon les role ne seront pas initialiser
 et vous devais faire vos roles en .yml
 
 ```yaml
 
-name: Exemple 
-default: false 
-priority: 1 
-chatFormat: "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}[{&suffix}] : {&message}" 
+name: Exemple
+default: false
+priority: 1
+chatFormat: "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}[{&suffix}] : {&message}"
 nameTagFormat: "[§6{&role}§r]\n{&playerName}"
 heritages: []
 permissions:
