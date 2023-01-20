@@ -4,7 +4,7 @@ French:
   mini: "fra"
   image: ""
 English:
-  default: true
+  default: false
   mini: "eng"
   image: ""
 ...
