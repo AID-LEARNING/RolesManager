@@ -7,3 +7,8 @@ start.sh
 test/*
 .idea
 vendor
+*.svg
+src/jojoe77777
+src/SenseiTarzan/Path
+src/SenseiTarzan/IconUtils
+src/SenseiTarzan/LanguageSystem

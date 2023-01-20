@@ -2,8 +2,13 @@
 
 namespace SenseiTarzan\RoleManager\Class\Role;
 
+use pocketmine\plugin\Plugin;
 use pocketmine\utils\Config;
+use pocketmine\utils\TextFormat;
+use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\RoleManager\Component\RoleManager;
+use SenseiTarzan\RoleManager\Utils\Utils;
+use Symfony\Component\Filesystem\Path;
 
 class Role implements  \JsonSerializable
 {
@@ -12,6 +17,7 @@ class Role implements  \JsonSerializable
     public function __construct(
         private string $id,
         private string $name,
+        private IconForm $image,
         private bool $default,
         private float $priority,
         private array $heritages,
@@ -26,6 +32,28 @@ class Role implements  \JsonSerializable
         $this->setNameTagFormat($nameTagFormat);
     }
 
+    public function create(Plugin $plugin, string $name,IconForm $image,bool $default,float $priority,array $heritages,array $permissions, string $chatFormat, string $nameTagFormat,bool $changeName, ?Config $config = null): Role
+    {
+        $role = new Role(
+            Utils::roleStringToId($name = Utils::removeColorInRole($name)),
+            $name,
+            $image,
+            $default,
+            $priority,
+            $heritages,
+            $permissions,
+            $chatFormat,
+            $nameTagFormat,
+            $changeName,
+            $config ??= new Config(Path::join($plugin->getDataFolder(), "roles/", "$name.role.yml"))
+        );
+        if (empty($config->getAll())) {
+            $config->setAll($role->jsonSerialize());
+        }
+        return $role;
+
+    }
+
     /**
      * @return string
      */
@@ -37,6 +65,14 @@ class Role implements  \JsonSerializable
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return IconForm
+     */
+    public function getImage(): IconForm
+    {
+        return $this->image;
     }
 
     /**
@@ -181,8 +217,9 @@ class Role implements  \JsonSerializable
         return $this->config;
     }
 
+
     public function jsonSerialize(): array
     {
-        return ["name" => $this->getName(), "priority" => $this->getPriority(), "default" => $this->isDefault(), "changeName" => $this->isChangeName(), "heritage" => $this->getHeritages(), "chatFormat" => $this->getChatFormat(), "nameTagFormat" => $this->getNameTagFormat(), "permissions" => $this->getPermissions()];
+        return ["name" => $this->getName(), "image" => $this->getImage()->getPath(), "priority" => $this->getPriority(), "default" => $this->isDefault(), "changeName" => $this->isChangeName(), "heritage" => $this->getHeritages(), "chatFormat" => $this->getChatFormat(), "nameTagFormat" => $this->getNameTagFormat(), "permissions" => $this->getPermissions()];
     }
 }

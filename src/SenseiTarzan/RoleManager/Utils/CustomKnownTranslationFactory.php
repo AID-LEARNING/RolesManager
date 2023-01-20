@@ -18,13 +18,28 @@ class CustomKnownTranslationFactory
     {
         return new Translatable(CustomKnownTranslationKeys::TITLE_CREATE_ROLE, []);
     }
+
+
+
+    public static function message_create_role(string $name): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::CREATE_ROLE, ["role" => $name]);
+    }
+    public static function exemple_image_label(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::EXEMPLE_IMAGE_LABEL, []);
+    }
+    public static function exemple_priority_label(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::EXEMPLE_PRIORITY_LABEL, []);
+    }
     public static function exemple_heritages_label(): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::LABEL_ADD_HERITAGES, []);
+        return new Translatable(CustomKnownTranslationKeys::EXEMPLE_HERITAGES_LABEL, []);
     }
     public static function exemple_permissions_label(): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::LABEL_ADD_HERITAGES, []);
+        return new Translatable(CustomKnownTranslationKeys::EXEMPLE_PERMISSIONS_LABEL, []);
     }
     public static function error_player_disconnected(string $name): Translatable
     {

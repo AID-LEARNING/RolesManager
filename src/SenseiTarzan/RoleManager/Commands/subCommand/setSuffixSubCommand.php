@@ -8,14 +8,13 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
-use SenseiTarzan\RoleManager\Commands\args\PermissionsArgument;
 use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationKeys;
 
-class setPrefixCommands extends BaseSubCommand
+class setSuffixSubCommand extends BaseSubCommand
 {
 
 
@@ -24,9 +23,9 @@ class setPrefixCommands extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.prefix.permission");
+        $this->setPermission("command.suffix.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-        $this->registerArgument(1, new RawStringArgument(name: "prefix"));
+        $this->registerArgument(1, new RawStringArgument(name: "suffix"));
 
     }
 
@@ -40,9 +39,9 @@ class setPrefixCommands extends BaseSubCommand
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
             return;
         }
-        $prefix = $args['prefix'];
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_prefix_sender($target, $prefix)));
-        RoleManager::getInstance()->setPrefix($target, $prefix);
+        $suffix = $args['suffix'];
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_suffix_sender($target, $suffix)));
+        RoleManager::getInstance()->setSuffix($target, $suffix);
 
     }
 }

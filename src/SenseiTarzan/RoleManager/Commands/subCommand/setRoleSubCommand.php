@@ -7,13 +7,14 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
-use SenseiTarzan\RoleManager\Commands\args\PermissionsArgument;
+use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationKeys;
 
-class subPermissionsCommands extends BaseSubCommand
+class setRoleSubCommand extends BaseSubCommand
 {
 
 
@@ -22,9 +23,9 @@ class subPermissionsCommands extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.sub-permissions.permission");
+        $this->setPermission("command.set-role.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-        $this->registerArgument(1, new PermissionsArgument(name: "perm"));
+        $this->registerArgument(1, new RoleArgument(name: "name"));
 
     }
 
@@ -34,9 +35,9 @@ class subPermissionsCommands extends BaseSubCommand
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-        $perm =  explode(";", $args['perm']);
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::remove_permissions_sender($target,$perm)));
-        RoleManager::getInstance()->removePermissionPlayer($target, $perm);
+        $role = $args['name'];
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_role_sender($target,$role)));
+        RoleManager::getInstance()->setRolePlayer($target, $role);
 
     }
 }

@@ -17,6 +17,7 @@ use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\TextFormat;
+use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Role\Role;
@@ -26,7 +27,8 @@ use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Event\EventChangeRole;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationKeys;
-use Webmozart\PathUtil\Path;
+use SenseiTarzan\RoleManager\Utils\Utils;
+use Symfony\Component\Filesystem\Path;
 
 
 class RoleManager
@@ -49,7 +51,7 @@ class RoleManager
         self::setInstance($this);
         $this->plugin = $pl;
         $this->config = new Config($pl->getDataFolder() . 'config.yml', Config::YAML);
-        DataManager::getInstance()->setSaveDataSystem(match (strtolower($this->config->get("data-type", "json"))){
+        DataManager::getInstance()->setSaveDataSystem(match (strtolower($this->config->get("data-type", "json"))) {
             "yml", "yaml" => new YAMLSave($pl->getDataFolder()),
             "json" => new JSONSave($pl->getDataFolder()),
             default => null
@@ -63,27 +65,65 @@ class RoleManager
     public function LoadRoles(): void
     {
 
-        foreach (PathScanner::scanDirectoryToConfig($this->plugin->getDataFolder() . "roles/", ['yml']) as $directoryFile => $info_role) {
-            $this->roles[$id = str_replace(" ", "_", strtolower($name = str_replace(array_values(TextFormat::COLORS), "", $info_role->get('name'))))] = $role = new Role(
-                $id,
-                $name,
+        foreach (PathScanner::scanDirectoryToConfig(Path::join($this->plugin->getDataFolder(), "roles/"), ['yml']) as $directoryFile => $info_role) {
+            $this->addRole(Role::create(
+                $this->plugin,
+                $info_role->get('name'),
+                IconForm::create($info_role->get('image', "")),
                 $info_role->get('default', false),
                 $info_role->get('priority', 0),
-                $info_role->get('heritages', []),
+                array_map(fn(string $role) => Utils::roleStringToId($role), $info_role->get('heritages', [])),
                 $info_role->get('permissions', []),
                 $info_role->get('chatFormat', ""),
                 $info_role->get('nameTagFormat', ""),
                 $info_role->get('changeName', false),
                 $info_role
-            );
-            RoleArgument::$VALUES[strtolower($name)] = $id;
-            if ($role->isDefault() && !isset($this->defaultRole)) {
-                RoleArgument::$VALUES['default'] = $id;
-                $this->setDefaultRole($role);
-            }
+            ));
         }
-        unset($chat);
     }
+
+    /**
+     * @param string $name
+     * @param IconForm $image
+     * @param bool $default
+     * @param float $priority
+     * @param array $heritages
+     * @param array $permissions
+     * @param string $chatFormat
+     * @param string $nameTagFormat
+     * @param bool $changeName
+     * @return void
+     */
+    public function createRole(string $name, IconForm $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName): Role
+    {
+        $role = Role::create(
+            $this->plugin,
+            $name,
+            $image,
+            $default,
+            $priority,
+            Utils::rolesStringToIdArray($heritages),
+            $permissions,
+            $chatFormat,
+            $nameTagFormat,
+            $changeName
+        );
+        $this->addRole($role, true);
+        return $role;
+    }
+
+
+    public function addRole(Role $role, bool $overwrite = false): void
+    {
+        if (array_key_exists($role->getId(), $this->getRoles())) return;
+        if ($role->isDefault() && (!isset($this->defaultRole)) || $overwrite) {
+            RoleArgument::$VALUES['default'] = $role->getId();
+            $this->setDefaultRole($role);
+        }
+        RoleArgument::$VALUES[strtolower($role->getName())] = $role->getId();
+        $this->roles[$role->getId()] = $role;
+    }
+
 
     public function getDefaultRole(): Role
     {
@@ -97,7 +137,7 @@ class RoleManager
     {
         if (isset($this->defaultRole)) {
             $this->defaultRole->setDefault(false);
-            $defaultRole->setDefault(true);
+            if (!$defaultRole->isDefault()) $defaultRole->setDefault(true);
         }
         $this->defaultRole = $defaultRole;
     }
@@ -109,12 +149,12 @@ class RoleManager
 
 
     /**
-     * @param string $role
+     * @param string $role id|name
      * @return Role
      */
     public function getRole(string $role): Role
     {
-        return $this->roles[$role] ?? $this->getDefaultRole();
+        return $this->roles[Utils::roleStringToId($role)] ?? $this->getDefaultRole();
     }
 
     public function loadPermission(): void
@@ -143,7 +183,7 @@ class RoleManager
      * @param string $role
      * @return array
      */
-    public function  getPermissionHeritage(string $role): array
+    public function getPermissionHeritage(string $role): array
     {
         return $this->getRole($role)->getHeritagesPermissions();
     }
@@ -180,10 +220,10 @@ class RoleManager
      */
     public function addHeritageRole(string $role, array|string $heritages): void
     {
-        if (is_array($heritages)){
-            $heritages = array_filter($heritages, fn ($name) => $name !== $role &&$this->isRole($name));
+        if (is_array($heritages)) {
+            $heritages = array_filter($heritages, fn($name) => $name !== $role && $this->isRole($name));
             if (empty($heritages)) return;
-        }elseif($heritages === $role && $this->isRole($heritages)) return;
+        } elseif ($heritages === $role && $this->isRole($heritages)) return;
 
         $this->getRole($role)->addHeritages($heritages);
 
@@ -197,7 +237,7 @@ class RoleManager
 
     /**
      * @param string $role
-     * @param string $permission
+     * @param array|string $permission
      */
     public function addPermissionRole(string $role, array|string $permission): void
     {
@@ -206,7 +246,7 @@ class RoleManager
 
     /**
      * @param string $role
-     * @param string $permission
+     * @param array|string $permission
      */
     public function removePermissionRole(string $role, array|string $permission): void
     {
@@ -223,11 +263,14 @@ class RoleManager
 
     /**
      * @param string|Player $player
-     * @param string $role
+     * @param Role|string $role
      */
-    public function setRolePlayer(Player|string $player, Role $role): void
+    public function setRolePlayer(Player|string $player, Role|string $role): void
     {
 
+        if (is_string($role)){
+            $role = $this->getRole($role);
+        }
         if (!is_string($player)) {
             $event = new EventChangeRole($player, RolePlayerManager::getInstance()->getPlayer($player)->getRole(), $role);
             $event->call();
@@ -287,7 +330,7 @@ class RoleManager
 
     /**
      * @param string|Player $player
-     * @param string $permission
+     * @param array|string $permission
      */
     public function removePermissionPlayer(Player|string $player, array|string $permission): void
     {
@@ -298,7 +341,7 @@ class RoleManager
 
     /**
      * @param string|Player $player
-     * @param array|string $data
+     * @param array|string|Role $data
      * @param string $type
      */
     private function updateDataPlayer(Player|string $player, array|string|Role $data, string $type = "role"): void
@@ -311,7 +354,7 @@ class RoleManager
             DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
             return;
         }
-        if (is_string($player)){
+        if (is_string($player)) {
             $player = Server::getInstance()->getPlayerExact($player) ?? $player;
             $isPlayer = $player instanceof Player;
         }
@@ -343,24 +386,43 @@ class RoleManager
         }
     }
 
-    public function createRoleUI(Player $player): void{
-        $ui = new CustomForm(function (Player $player, ?array $args){
+    public function createRoleUI(Player $player): void
+    {
+        $ui = new CustomForm(function (Player $player, ?array $args) {
+            if (!$args) {
+                return;
+            }
+            $name = $args[0];
+            $image = IconForm::create($args[2]);
+            $default = $args[3];
+            $priority = $args[5];
+            $heritages = explode(";", $args[7]);
+            $permissions = explode(";", $args[9]);
+            $chatFormat = $args[10];
+            $nameTagFormat = $args[12];
+            $changeName = $args[13];
 
+            $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player,
+                CustomKnownTranslationFactory::message_create_role(
+                    $this->createRole($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName)->getName())
+                )
+            );
         });
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_create_role()));
         $ui->addInput("name Role", "King");// 0
-        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label())); //1
-        $ui->addInput("Chat Format","§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}§7[{&suffix}§7]§r: §r{&message}",  "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}§7[{&suffix}§7]§r: §r{&message}");//2
-        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label())); //1
-        $ui->addInput("NameTag Format","[§6{&role}§r]{&playerName}",  "[§6{&role}§r]{&playerName}");//2
-        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label())); //1
-        $ui->addInput("Heritages","");//2
-        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label())); //1
-        $ui->addInput("Heritages","");//2
-        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label()));//3
-        $ui->addInput("Permissions",DefaultPermissionNames::COMMAND_ME . ";" . DefaultPermissionNames::COMMAND_TELL);//4
-        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label()));//3
-        $ui->addInput("Priority",DefaultPermissionNames::COMMAND_ME . ";" . DefaultPermissionNames::COMMAND_TELL);//4
+        $ui->addInput(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_image_label())); // 1
+        $ui->addInput("image", "path/tete", "");// 2
+        $ui->addToggle("default", false); // 3
+        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_priority_label()));// 4
+        $ui->addInput("Priority", 0, 0);// 5
+        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_heritages_label())); // 6
+        $ui->addInput("Heritages", "", "");// 7
+        $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_permissions_label())); // 8
+        $ui->addInput("Permissions", "", "");// 9
+        $ui->addInput("Chat Format", "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}§7[{&suffix}§7]§r: §r{&message}", "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}§7[{&suffix}§7]§r: §r{&message}");// 10
+        $ui->addInput("NameTag Format", "[§6{&role}§r]{&playerName}", "[§6{&role}§r]{&playerName}");// 12
+        $ui->addToggle("changeName", false); // 13
+        $player->sendForm($ui);
     }
 
 }
