@@ -8,8 +8,8 @@ projects:
     lint:
       phpstan: false
     libs:
-      - src: jojoe77777/FormAPI/libFormAPI
-        version: ^1.3.0
+      - src: AID-LEARNING/FormAPI/libFormAPI
+        version: ^2.1.0
       - src: AID-LEARNING/LanguageSystem/libLanguageSystem
         version: ^1.0.1
       - src: AID-LEARNING/libExtraPath/libExtraPathConfig
