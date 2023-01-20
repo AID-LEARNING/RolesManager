@@ -17,12 +17,12 @@ class CustomKnownTranslationKeys
     const SET_PERMISSIONS_SENDER = "Role.sender.permission.set";
     const SET_PERMISSIONS_TARGET = "Role.target.permission.set";
 
-    const SET_PREFIX_SENDER = "Role.sender.prefix";
-    const SET_PREFIX_TARGET = "Role.target.prefix";
+    const SET_PREFIX_SENDER = "RolePlayer.sender.prefix";
+    const SET_PREFIX_TARGET = "RolePlayer.target.prefix";
     const SET_NAME_ROLE_CUSTOM_SENDER = "RolePlayer.sender.nameCustom";
     const SET_NAME_ROLE_CUSTOM_TARGET = "RolePlayer.target.nameCustom";
-    const SET_SUFFIX_SENDER = "Role.sender.suffix";
-    const SET_SUFFIX_TARGET = "Role.target.suffix";
+    const SET_SUFFIX_SENDER = "RolePlayer.sender.suffix";
+    const SET_SUFFIX_TARGET = "RolePlayer.target.suffix";
     const TITLE_CREATE_ROLE = "Role.title.role.add";
     const TITLE_REMOVE_ROLE = "Role.title.role.remove";
     const TITLE_ADD_PERMISSIONS_ROLE = "Role.title.permissions.add";
