@@ -50,12 +50,8 @@ class RoleManager
     {
         self::setInstance($this);
         $this->plugin = $pl;
-        $this->config = new Config($pl->getDataFolder() . 'config.yml', Config::YAML);
-        DataManager::getInstance()->setSaveDataSystem(match (strtolower($this->config->get("data-type", "json"))) {
-            "yml", "yaml" => new YAMLSave($pl->getDataFolder()),
-            "json" => new JSONSave($pl->getDataFolder()),
-            default => null
-        });
+        $this->config = $pl->getConfig();
+
         $this->server = Server::getInstance();
         $this->LoadRoles();
         $this->loadPermission();
@@ -144,7 +140,7 @@ class RoleManager
 
     public function getExcludeNameRole(): array
     {
-        return $this->config->get("excludeNameRole", $this->getRoles(true));
+        return $this->config->get("exclude-name-role", $this->getRoles(true));
     }
 
 
