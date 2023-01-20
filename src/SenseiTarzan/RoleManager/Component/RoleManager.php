@@ -116,7 +116,7 @@ class RoleManager
     public function addRole(Role $role, bool $overwrite = false): void
     {
         if (array_key_exists($role->getId(), $this->getRoles())) return;
-        if ($role->isDefault() && (!isset($this->defaultRole)) || $overwrite) {
+        if ($role->isDefault() && (!isset($this->defaultRole) || $overwrite)){
             RoleArgument::$VALUES['default'] = $role->getId();
             $this->setDefaultRole($role);
         }
