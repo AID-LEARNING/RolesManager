@@ -49,6 +49,7 @@ class Role implements  \JsonSerializable
         );
         if (empty($config->getAll())) {
             $config->setAll($role->jsonSerialize());
+            $config->save();
         }
         return $role;
 
