@@ -3,4 +3,8 @@ French:
   default: true
   mini: "fra"
   image: ""
+English:
+  default: true
+  mini: "eng"
+  image: ""
 ...
