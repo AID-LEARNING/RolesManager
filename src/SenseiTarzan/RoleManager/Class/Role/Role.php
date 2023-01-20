@@ -28,8 +28,8 @@ class Role implements  \JsonSerializable
         private Config $config
     )
     {
-        $this->setChatFormat($chatFormat);
-        $this->setNameTagFormat($nameTagFormat);
+        $this->chatFormat =  str_replace('\n', "\n", $chatFormat);
+        $this->nameTagFormat = str_replace('\n', "\n", $nameTagFormat);
     }
 
     public static function create(Plugin $plugin, string $name,IconForm $image,bool $default,float $priority,array $heritages,array $permissions, string $chatFormat, string $nameTagFormat,bool $changeName, ?Config $config = null): Role
