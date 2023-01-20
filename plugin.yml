@@ -29,3 +29,6 @@ permissions:
   command.sub-permissions.permission:
     description: "Permet d'enlever une ou des permissions a un joueur"
     default: op
+  command.create-role.permission:
+    description: "Permet de creer des role en UI"
+    default: op
