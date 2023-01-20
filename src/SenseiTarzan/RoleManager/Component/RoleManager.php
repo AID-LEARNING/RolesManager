@@ -399,8 +399,8 @@ class RoleManager
             $heritages = explode(";", $args[7]);
             $permissions = explode(";", $args[9]);
             $chatFormat = $args[10];
-            $nameTagFormat = $args[12];
-            $changeName = $args[13];
+            $nameTagFormat = $args[11];
+            $changeName = $args[12];
 
             $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player,
                 CustomKnownTranslationFactory::message_create_role(
@@ -420,8 +420,8 @@ class RoleManager
         $ui->addLabel(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::exemple_permissions_label())); // 8
         $ui->addInput("Permissions", "", "");// 9
         $ui->addInput("Chat Format", "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}§7[{&suffix}§7]§r: §r{&message}", "§7[§r{&prefix}§7]§r[§6{&role}§r]{&playerName}§7[{&suffix}§7]§r: §r{&message}");// 10
-        $ui->addInput("NameTag Format", "[§6{&role}§r]{&playerName}", "[§6{&role}§r]{&playerName}");// 12
-        $ui->addToggle("changeName", false); // 13
+        $ui->addInput("NameTag Format", "[§6{&role}§r]{&playerName}", "[§6{&role}§r]{&playerName}");// 11
+        $ui->addToggle("changeName", false); // 12
         $player->sendForm($ui);
     }
 
