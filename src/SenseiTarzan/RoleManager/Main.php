@@ -5,7 +5,10 @@ use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
+use SenseiTarzan\RoleManager\Class\Save\JSONSave;
+use SenseiTarzan\RoleManager\Class\Save\YAMLSave;
 use SenseiTarzan\RoleManager\Commands\RoleCommands;
+use SenseiTarzan\RoleManager\Component\DataManager;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\TextAttributeManager;
 use SenseiTarzan\RoleManager\Listener\PlayerListener;
@@ -24,6 +27,11 @@ class Main extends PluginBase
         }
         new LanguageManager($this);
         new RoleManager($this);
+        DataManager::getInstance()->setSaveDataSystem(match (strtolower($this->getConfig()->get("data-type", "json"))) {
+            "yml", "yaml" => new YAMLSave($this->getDataFolder()),
+            "json" => new JSONSave($this->getDataFolder()),
+            default => null
+        });
         new TextAttributeManager();
     }
 
@@ -34,7 +42,9 @@ class Main extends PluginBase
         }
 
         $this->getServer()->getPluginManager()->registerEvents(new PlayerListener(), $this);
-        $this->getScheduler()->scheduleRepeatingTask(new NameTagTask(), 20);
+        if ($this->getConfig()->get("nametag-task-tick", 20)) {
+            $this->getScheduler()->scheduleRepeatingTask(new NameTagTask(), 20);
+        }
         $this->getServer()->getCommandMap()->register("senseitarzan", new RoleCommands($this, "role", "Role Command", ["group"]));
     }
 }
