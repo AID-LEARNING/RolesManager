@@ -396,8 +396,8 @@ class RoleManager
             $image = IconForm::create($args[2]);
             $default = $args[3];
             $priority = $args[5];
-            $heritages = explode(";", $args[7]);
-            $permissions = explode(";", $args[9]);
+            $heritages = array_filter(explode(";", $args[7]), fn ($heritage) => $heritage !== "");
+            $permissions = array_filter(explode(";", $args[9]), fn ($heritage) => $heritage !== "");
             $chatFormat = $args[10];
             $nameTagFormat = $args[11];
             $changeName = $args[12];
