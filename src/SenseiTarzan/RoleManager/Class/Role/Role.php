@@ -82,6 +82,8 @@ class Role implements  \JsonSerializable
     public function setImage(string $image): void
     {
         $this->image = IconForm::create($image);
+        $this->config->set("image", $image);
+        $this->config->save();
     }
 
     /**
@@ -132,6 +134,17 @@ class Role implements  \JsonSerializable
     }
 
 
+    public function getAllHeritages(): array
+    {
+        $heritages = [];
+        foreach ($this->heritages as $heritage){
+            $heritages += RoleManager::getInstance()->getHeritages($heritage);
+
+        }
+        return $heritages;
+    }
+
+
     public function getPermissions(): array
     {
         return $this->permissions;
@@ -153,15 +166,20 @@ class Role implements  \JsonSerializable
         $this->setPermissions(array_diff($this->permissions, (is_array($permission) ? $permission: [$permission])));
     }
 
+
     public function getHeritagesPermissions(): array
     {
-        $permissions = $this->getPermissions();
+        $permissions = [];
         foreach ($this->heritages as $heritage){
             if (is_array($permissionsRole =RoleManager::getInstance()->getPermissionRole($heritage))){
                 $permissions += $permissionsRole;
             }
         }
         return $permissions;
+    }
+
+    public function getAllPermissions(): array{
+        return $this->permissions + $this->getHeritagesPermissions();
     }
 
     /**

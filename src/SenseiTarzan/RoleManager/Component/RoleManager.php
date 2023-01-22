@@ -110,6 +110,10 @@ class RoleManager
         return $role;
     }
 
+    private function getPermissionInString(): array{
+        return array_map(fn (Permission $value) => $value->getName(), PermissionManager::getInstance()->getPermissions());
+    }
+
 
     public function addRole(Role $role, bool $overwrite = false): void
     {
@@ -142,7 +146,7 @@ class RoleManager
 
     public function getExcludeNameRole(): array
     {
-        return $this->config->get("exclude-name-role", $this->getRoles(true));
+        return $this->config->get("exclude-name-role", $this->getRoles(true, true));
     }
 
 
@@ -195,6 +199,15 @@ class RoleManager
         return $this->getRole($role)->getHeritagesPermissions();
     }
 
+    /**
+     * @param string $role
+     * @return array
+     */
+    public function getHeritages(string $role): array
+    {
+        return $this->getRole($role)->getAllHeritages();
+    }
+
     public function addPermissions(Player $player, array $permissions): void
     {
         if ($player->isConnected()) {
@@ -216,9 +229,9 @@ class RoleManager
     /**
      * @return Role[]|string[]
      */
-    public function getRoles(bool $keys = false): array
+    public function getRoles(bool $keys = false, bool $name = false): array
     {
-        return $keys ? array_keys($this->roles) : $this->roles;
+        return $keys ? ($name ? array_map(fn(Role $role) => $role->getName(), $this->roles) : array_keys($this->roles)) : $this->roles;
     }
 
     /**
@@ -442,7 +455,7 @@ class RoleManager
         });
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_select_role()));
         foreach ($this->getRoles() as $role) {
-            $ui->addButton($role->getName(), $role->getImage()->getType(), $role->getImage()->getPath(), $role->getId());
+            $ui->addButton($role->getName(), ($roleImage = $role->getImage())->getType(), $roleImage->getPath(), $role->getId());
         }
         $player->sendForm($ui);
     }
@@ -454,6 +467,8 @@ class RoleManager
             match ($button) {
                 0 => $this->modifiedRoleGeneralUI($player, $role),
                 1 => $this->modifiedRoleDefaultUI($player, $role),
+                2 => $this->permissionsRoleIndexUI($player, $role),
+                3 => $this->heritagesRoleIndexUI($player, $role),
                 4 => $this->removeRoleUI($player, $role),
                 default => null
             };
@@ -469,6 +484,110 @@ class RoleManager
 
     }
 
+    private function permissionsRoleIndexUI(Player $player, Role $role): void{
+        $ui = new SimpleForm(function (Player $player, ?int $data) use($role): void{
+            if ($data === null){
+                $this->modifiedRoleIndexUI($player, $role);
+                return;
+            }
+            match ($data){
+                0 => $this->permissionsRoleAddUI($player, $role),
+                1 => $this->permissionsRoleRemoveUI($player, $role)
+            };
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_permissions()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_permissions_add()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_permissions_remove()));
+        $player->sendForm($ui);
+    }
+
+    private function permissionsRoleAddUI(Player $player, Role $role): void{
+        $ui = new SimpleForm(function (Player $player, ?string $permissions) use($role): void{
+            if ($permissions === null){
+                $this->permissionsRoleIndexUI($player, $role);
+                return;
+            }
+            $role->addPermission($permissions);
+            $this->permissionsRoleAddUI($player, $role);
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_add()));
+        foreach (array_filter($role->getAllPermissions(), $this->getPermissionInString()) as $permission){
+            $ui->addButton($permission, label: $permission);
+        }
+        $player->sendForm($ui);
+    }
+
+    private function permissionsRoleRemoveUI(Player $player, Role $role): void{
+        $ui = new SimpleForm(function (Player $player, ?string $permissions) use($role): void{
+            if ($permissions === null){
+                $this->permissionsRoleIndexUI($player, $role);
+                return;
+            }
+            $role->removePermission($permissions);
+            $this->permissionsRoleAddUI($player, $role);
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_remove()));
+        foreach ($role->getPermissions() as $permission){
+            $ui->addButton($permission, label: $permission);
+        }
+        $player->sendForm($ui);
+    }
+
+    private function heritagesRoleIndexUI(Player $player, Role $role): void{
+        $ui = new SimpleForm(function (Player $player, ?int $data) use($role): void{
+            if ($data === null){
+                $this->modifiedRoleIndexUI($player, $role);
+                return;
+            }
+            match ($data){
+                0 => $this->heritagesRoleAddUI($player, $role),
+                1 => $this->heritagesRoleRemoveUI($player, $role)
+            };
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_permissions()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_permissions_add()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_permissions_remove()));
+        $player->sendForm($ui);
+    }
+
+    private function heritagesRoleAddUI(Player $player, Role $role): void{
+        $ui = new SimpleForm(function (Player $player, ?string $permissions) use($role): void{
+            if ($permissions === null){
+                $this->heritagesRoleIndexUI($player, $role);
+                return;
+            }
+            $role->addHeritages($permissions);
+            $this->heritagesRoleAddUI($player, $role);
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_add()));
+        foreach (array_filter($role->getAllHeritages(), $this->getRoles(true)) as $heritageId){
+            $ui->addButton(($role = $this->getRole($heritageId))->getName(), ($roleImage = $role->getImage())->getType(), $roleImage->getPath(), $heritageId);
+        }
+        $player->sendForm($ui);
+    }
+
+    private function heritagesRoleRemoveUI(Player $player, Role $role): void{
+        $ui = new SimpleForm(function (Player $player, ?string $permissions) use($role): void{
+            if ($permissions === null){
+                $this->heritagesRoleIndexUI($player, $role);
+                return;
+            }
+            $role->removeHeritages($permissions);
+            $this->heritagesRoleRemoveUI($player, $role);
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_remove()));
+        foreach ($role->getHeritages() as $heritageId){
+            $ui->addButton(($role = $this->getRole($heritageId))->getName(), ($roleImage = $role->getImage())->getType(), $roleImage->getPath(), $heritageId);
+        }
+        $player->sendForm($ui);
+    }
+
     private function modifiedRoleGeneralUI(Player $player, Role $role): void
     {
         $ui = new CustomForm(function (Player $player, ?array $data) use ($role): void {
@@ -479,7 +598,6 @@ class RoleManager
             if ($priority !== $role->getPriority()) $role->setPriority($priority);
             if ($chatFormat !== $role->getChatFormat()) $role->setChatFormat($chatFormat);
             if ($nameTagFormat !== $role->getNameTagFormat()) $role->setNameTagFormat($nameTagFormat);
-
         });
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_general()));
         $ui->addToggle("changeName", $role->isChangeName()); //0

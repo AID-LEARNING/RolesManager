@@ -45,6 +45,14 @@ class CustomKnownTranslationFactory
     {
         return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_PERMISSIONS, []);
     }
+    public static function title_permissions_add(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_PERMISSIONS_ADD, []);
+    }
+    public static function title_permissions_remove(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_PERMISSIONS_REMOVE, []);
+    }
     public static function title_modified_heritages(): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_HERITAGES, []);
@@ -72,6 +80,16 @@ class CustomKnownTranslationFactory
     public static function button_modified_permissions(): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_PERMISSIONS, []);
+
+    }
+    public static function button_permissions_add(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_PERMISSIONS_ADD, []);
+
+    }
+    public static function button_permissions_remove(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_PERMISSIONS_REMOVE, []);
 
     }
     public static function button_modified_heritages(): Translatable

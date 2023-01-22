@@ -38,7 +38,7 @@ class RolePlayerManager
     {
         $roleManager = RoleManager::getInstance();
         $perm_update = $rolePlayer->getPermissions();
-        $permsAll = $perm_update +  $roleManager->getPermissionHeritage($rolePlayer->getRole()->getName());
+        $permsAll = $perm_update +  $rolePlayer->getRole()->getAllPermissions();
         $perms = [];
         foreach ($permsAll as $perm) {
             $perms[$perm] = true;

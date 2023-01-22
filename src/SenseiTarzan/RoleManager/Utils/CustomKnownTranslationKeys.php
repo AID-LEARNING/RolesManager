@@ -47,4 +47,8 @@ class CustomKnownTranslationKeys
 
     const BUTTONS_ACCEPT = "Role.buttons.accept";
     const BUTTONS_DENIED = "Role.buttons.denied";
+    const BUTTON_PERMISSIONS_ADD = "Role.button.permissions.add";
+    const BUTTON_PERMISSIONS_REMOVE = "Role.button.permissions.remove";
+    const TITLE_PERMISSIONS_ADD = "Role.title.permissions.add";
+    const TITLE_PERMISSIONS_REMOVE = "Role.title.permissions.remove";
 }
