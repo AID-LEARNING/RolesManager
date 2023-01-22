@@ -444,7 +444,7 @@ class RoleManager
         foreach ($this->getRoles() as $role) {
             $ui->addButton($role->getName(), $role->getImage()->getType(), $role->getImage()->getPath(), $role->getId());
         }
-        $player->sendForm($player);
+        $player->sendForm($ui);
     }
 
     private function modifiedRoleIndexUI(Player $player, Role $role): void
@@ -465,7 +465,7 @@ class RoleManager
         $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_permissions()));
         $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_heritages()));
         $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_remove()));
-        $player->sendForm($player);
+        $player->sendForm($ui);
 
     }
 
@@ -487,7 +487,7 @@ class RoleManager
         $ui->addInput("Priority", $role->getPriority(), $role->getPriority()); // 2
         $ui->addInput("Chat Format", $role->getChatFormat(), $role->getChatFormat());// 3
         $ui->addInput("NameTag Format", $role->getNameTagFormat(), $role->getNameTagFormat());// 4
-        $player->sendForm($player);
+        $player->sendForm($ui);
     }
 
     private function modifiedRoleDefaultUI(Player $player, Role $role): void
@@ -505,7 +505,7 @@ class RoleManager
         $ui->setContent(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::description_modified_default()));
         $ui->setButton1(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_accept()));
         $ui->setButton2(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_denied()));
-        $player->sendForm($player);
+        $player->sendForm($ui);
     }
 
     private function removeRoleUI(Player $player, Role $role): void
@@ -525,6 +525,6 @@ class RoleManager
         $ui->setContent(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::description_modified_remove()));
         $ui->setButton1(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_accept()));
         $ui->setButton2(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_denied()));
-        $player->sendForm($player);
+        $player->sendForm($ui);
     }
 }
