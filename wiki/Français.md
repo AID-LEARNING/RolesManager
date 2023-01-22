@@ -39,6 +39,8 @@ permissions:
 ## Creation de un ChatAttribut
 #### Cela permet de créer votre propre ``{&...}`` pour le chatFormat
 ```php
+use SenseiTarzan\RoleManager\Component\TextAttributeManager;  //import
+use SenseiTarzan\RoleManager\Class\Text\ChatAttribute;  //import
 TextAttributeManager::getInstance()->registerChatAttribute(new ChatAttribute("playerXpLvl", function (Player $player, string $message /*cette variable ne vous sera d'aucune utilité*/, string $search, string &$format): void {
             $format = str_replace($search, $player->getXpManager()->getXpLevel(), $format);
 })));
@@ -48,6 +50,8 @@ cela va creer un ``{&playerXpLvl}`` est vous pourrez l'ajouter dans le chatForma
 ## Creation de un NameTagAttribute
 #### Cela permet de créer votre propre ``{&...}`` pour le nameTagFormat
 ```php
+use SenseiTarzan\RoleManager\Component\TextAttributeManager; //import
+use SenseiTarzan\RoleManager\Class\Text\NameTagAttribute; //import
 TextAttributeManager::getInstance()->registerNameTagAttribute(new NameTagAttribute("playerXpLvl", function (Player $player, string $search, string &$format): void {
             $format = str_replace($search, $player->getXpManager()->getXpLevel(), $format);
 })));

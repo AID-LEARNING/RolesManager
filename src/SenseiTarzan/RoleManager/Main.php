@@ -3,6 +3,7 @@ namespace SenseiTarzan\RoleManager;
 
 use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
+use SenseiTarzan\ExtraEvent\Component\EventLoader;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Save\JSONSave;
@@ -41,10 +42,12 @@ class Main extends PluginBase
             PacketHooker::register($this);
         }
 
-        $this->getServer()->getPluginManager()->registerEvents(new PlayerListener(), $this);
+        EventLoader::loadEventWithClass($this, PlayerListener::class);
+
         if ($this->getConfig()->get("nametag-task-tick", 20)) {
             $this->getScheduler()->scheduleRepeatingTask(new NameTagTask(), 20);
         }
+
         $this->getServer()->getCommandMap()->register("senseitarzan", new RoleCommands($this, "role", "Role Command", ["group"]));
     }
 }

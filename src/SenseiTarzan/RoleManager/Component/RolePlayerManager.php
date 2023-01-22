@@ -2,8 +2,13 @@
 
 namespace SenseiTarzan\RoleManager\Component;
 
+use pocketmine\event\EventPriority;
+use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
+use SenseiTarzan\ExtraEvent\Class\EventAttribute;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 
 class RolePlayerManager
@@ -40,4 +45,5 @@ class RolePlayerManager
         }
         $roleManager->addPermissions($player, $perms);
     }
+
 }

@@ -9,6 +9,8 @@ projects:
     libs:
       - src: AID-LEARNING/FormAPI/libFormAPI
         version: ^2.1.0
+      - src: AID-LEARNING/ExtraEvent/libEventAttribute
+        version: ^1.0.0
       - src: AID-LEARNING/LanguageSystem/libLanguageSystem
         version: ^1.0.1
       - src: AID-LEARNING/libExtraPath/libExtraPathConfig
