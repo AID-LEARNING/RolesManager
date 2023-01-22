@@ -513,7 +513,7 @@ class RoleManager
         });
 
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_add()));
-        foreach (array_filter($role->getAllPermissions(), $this->getPermissionInString()) as $permission){
+        foreach (array_diff($role->getAllPermissions(), $this->getPermissionInString()) as $permission){
             $ui->addButton($permission, label: $permission);
         }
         $player->sendForm($ui);
@@ -565,7 +565,7 @@ class RoleManager
         });
 
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_add()));
-        foreach (array_filter($role->getAllHeritages(), $this->getRoles(true), [$role->getId()]) as $heritageId){
+        foreach (array_diff($role->getAllHeritages(), $this->getRoles(true), [$role->getId()]) as $heritageId){
             $ui->addButton(($role = $this->getRole($heritageId))->getName(), ($roleImage = $role->getImage())->getType(), $roleImage->getPath(), $heritageId);
         }
         $player->sendForm($ui);
