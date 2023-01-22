@@ -8,6 +8,7 @@ class CustomKnownTranslationKeys
 
     const GET_INFORMATION_ROLE = "Role.sender.information.role";
     const CREATE_ROLE = "Role.sender.role.create";
+    const REMOVE_ROLE = "Role.sender.role.remove";
     const SET_ROLE_SENDER = "Role.sender.role.set";
     const SET_ROLE_TARGET = "Role.target.role";
     const ADD_PERMISSIONS_SENDER = "Role.sender.permission.add";
@@ -16,6 +17,7 @@ class CustomKnownTranslationKeys
     const REMOVE_PERMISSIONS_TARGET = "Role.target.permission.remove";
     const SET_PERMISSIONS_SENDER = "Role.sender.permission.set";
     const SET_PERMISSIONS_TARGET = "Role.target.permission.set";
+    const SET_DEFAULT_ROLE_SENDER = "Role.sender.role.default";
 
     const SET_PREFIX_SENDER = "RolePlayer.sender.prefix";
     const SET_PREFIX_TARGET = "RolePlayer.target.prefix";
@@ -24,13 +26,25 @@ class CustomKnownTranslationKeys
     const SET_SUFFIX_SENDER = "RolePlayer.sender.suffix";
     const SET_SUFFIX_TARGET = "RolePlayer.target.suffix";
     const TITLE_CREATE_ROLE = "Role.title.role.add";
-    const TITLE_REMOVE_ROLE = "Role.title.role.remove";
-    const TITLE_ADD_PERMISSIONS_ROLE = "Role.title.permissions.add";
-    const TITLE_REMOVE_PERMISSIONS_ROLE = "Role.title.permissions.remove";
-    const TITLE_ADD_HERITAGES = "Role.title.heritages.add";
-    const TITLE_REMOVE_HERITAGES = "Role.title.heritages.remove";
     const EXEMPLE_IMAGE_LABEL = "Role.label.exemple.image";
     const EXEMPLE_PRIORITY_LABEL = "Role.label.exemple.priority";
     const EXEMPLE_HERITAGES_LABEL = "Role.label.exemple.heritages";
     const EXEMPLE_PERMISSIONS_LABEL = "Role.label.exemple.permissions";
+    const DESCRIPTION_MODIFIED_DEFAULT = "Role.description.modified.default";
+    const DESCRIPTION_MODIFIED_REMOVE = "Role.description.modified.remove";
+    const TITLE_SELECT_ROLE = "Role.title.select.role";
+    const TITLE_SELECT_TYPE = "Role.title.select.type";
+    const TITLE_MODIFIED_GENERAL = "Role.title.modified.general";
+    const TITLE_MODIFIED_DEFAULT = "Role.title.modified.default";
+    const TITLE_MODIFIED_PERMISSIONS = "Role.title.modified.permissions";
+    const TITLE_MODIFIED_HERITAGES = "Role.title.modified.heritages";
+    const TITLE_MODIFIED_REMOVE = "Role.title.modified.remove";
+    const BUTTON_MODIFIED_GENERAL = "Role.button.modified.general";
+    const BUTTON_MODIFIED_DEFAULT = "Role.button.modified.default";
+    const BUTTON_MODIFIED_PERMISSIONS = "Role.button.modified.permissions";
+    const BUTTON_MODIFIED_HERITAGES = "Role.button.modified.heritages";
+    const BUTTON_MODIFIED_REMOVE = "Role.button.modified.remove";
+
+    const BUTTONS_ACCEPT = "Role.buttons.accept";
+    const BUTTONS_DENIED = "Role.buttons.denied";
 }

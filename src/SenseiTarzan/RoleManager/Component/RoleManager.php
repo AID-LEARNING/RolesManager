@@ -3,10 +3,12 @@ namespace SenseiTarzan\RoleManager\Component;
 
 
 use jojoe77777\FormAPI\CustomForm;
+use jojoe77777\FormAPI\ModalForm;
 use jojoe77777\FormAPI\SimpleForm;
 use JsonException;
 use MongoDB\Client;
 use MongoDB\Exception\Exception;
+use pocketmine\item\ItemIds;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
@@ -112,7 +114,7 @@ class RoleManager
     public function addRole(Role $role, bool $overwrite = false): void
     {
         if (array_key_exists($role->getId(), $this->getRoles())) return;
-        if ($role->isDefault() && (!isset($this->defaultRole) || $overwrite)){
+        if ($role->isDefault() && (!isset($this->defaultRole) || $overwrite)) {
             RoleArgument::$VALUES['default'] = $role->getId();
             $this->setDefaultRole($role);
         }
@@ -151,6 +153,15 @@ class RoleManager
     public function getRole(string $role): Role
     {
         return $this->roles[Utils::roleStringToId($role)] ?? $this->getDefaultRole();
+    }
+
+    /**
+     * @param string $role id|name
+     * @return Role
+     */
+    public function getRoleNullable(string $role): ?Role
+    {
+        return $this->roles[Utils::roleStringToId($role)] ?? null;
     }
 
     public function loadPermission(): void
@@ -264,7 +275,7 @@ class RoleManager
     public function setRolePlayer(Player|string $player, Role|string $role): void
     {
 
-        if (is_string($role)){
+        if (is_string($role)) {
             $role = $this->getRole($role);
         }
         if (!is_string($player)) {
@@ -384,7 +395,7 @@ class RoleManager
 
     public function createRoleUI(Player $player): void
     {
-        $ui = new CustomForm(function (Player $player, ?array $args) {
+        $ui = new CustomForm(function (Player $player, ?array $args): void {
             if (!$args) {
                 return;
             }
@@ -392,8 +403,8 @@ class RoleManager
             $image = IconForm::create($args[2]);
             $default = $args[3];
             $priority = $args[5];
-            $heritages = array_values(array_filter(explode(";", $args[7]), fn ($heritage) => $heritage !== ""));
-            $permissions = array_values(array_filter(explode(";", $args[9]), fn ($permission) => $permission !== ""));
+            $heritages = array_values(array_filter(explode(";", $args[7]), fn($heritage) => $heritage !== ""));
+            $permissions = array_values(array_filter(explode(";", $args[9]), fn($permission) => $permission !== ""));
             $chatFormat = $args[10];
             $nameTagFormat = $args[11];
             $changeName = $args[12];
@@ -401,7 +412,7 @@ class RoleManager
             $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player,
                 CustomKnownTranslationFactory::message_create_role(
                     $this->createRole($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName)->getName())
-                )
+            )
             );
         });
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_create_role()));
@@ -421,4 +432,99 @@ class RoleManager
         $player->sendForm($ui);
     }
 
+    public function modifiedRoleSelectUI(Player $player): void
+    {
+        $ui = new SimpleForm(function (Player $player, ?string $roleId): void {
+            if (!$roleId) return;
+            $role = $this->getRoleNullable($roleId);
+            if ($role === null) return;
+            $this->modifiedRoleIndexUI($player, $role);
+        });
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_select_role()));
+        foreach ($this->getRoles() as $role) {
+            $ui->addButton($role->getName(), $role->getImage()->getType(), $role->getImage()->getPath(), $role->getId());
+        }
+        $player->sendForm($player);
+    }
+
+    private function modifiedRoleIndexUI(Player $player, Role $role): void
+    {
+        $ui = new SimpleForm(function (Player $player, ?int $button) use ($role): void {
+            if (!$button) return;
+            match ($button) {
+                0 => $this->modifiedRoleGeneralUI($player, $role),
+                1 => $this->modifiedRoleDefaultUI($player, $role),
+                5 => $this->removeRoleUI($player, $role),
+                default => null
+            };
+        });
+
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_select_type()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_general()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_default()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_permissions()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_heritages()));
+        $ui->addButton(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::button_modified_remove()));
+        $player->sendForm($player);
+
+    }
+
+    private function modifiedRoleGeneralUI(Player $player, Role $role): void
+    {
+        $ui = new CustomForm(function (Player $player, ?array $data) use ($role): void {
+            if (!$data) return;
+            list($changeName, $image, $priority, $chatFormat, $nameTagFormat) = $data;
+            if ($changeName !== $role->isChangeName()) $role->setChangeName($changeName);
+            if ($image !== $role->getImage()->getPath()) $role->setImage($image);
+            if ($priority !== $role->getPriority()) $role->setPriority($priority);
+            if ($chatFormat !== $role->getChatFormat()) $role->setChatFormat($chatFormat);
+            if ($nameTagFormat !== $role->getNameTagFormat()) $role->setNameTagFormat($nameTagFormat);
+
+        });
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_general()));
+        $ui->addToggle("changeName", $role->isChangeName()); //0
+        $ui->addInput("Image", $role->getImage()->getPath(), $role->getImage()->getPath()); //1
+        $ui->addInput("Priority", $role->getPriority(), $role->getPriority()); // 2
+        $ui->addInput("Chat Format", $role->getChatFormat(), $role->getChatFormat());// 3
+        $ui->addInput("NameTag Format", $role->getNameTagFormat(), $role->getNameTagFormat());// 4
+        $player->sendForm($player);
+    }
+
+    private function modifiedRoleDefaultUI(Player $player, Role $role): void
+    {
+        $ui = new ModalForm(function (Player $player, ?bool $default) use ($role): void {
+            if (!$default) return;
+            if ($role->getId() === $this->getDefaultRole()->getId()) {
+                $this->modifiedRoleIndexUI($player, $role);
+                return;
+            }
+            $this->setDefaultRole($role);
+            $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_default_role_sender($role->getName())));
+        });
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_default()));
+        $ui->setContent(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::description_modified_default()));
+        $ui->setButton1(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_accept()));
+        $ui->setButton2(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_denied()));
+        $player->sendForm($player);
+    }
+
+    private function removeRoleUI(Player $player, Role $role): void
+    {
+        $ui = new ModalForm(function (Player $player, ?bool $default) use ($role): void {
+            if (!$default) return;
+            if ($role->getId() === $this->getDefaultRole()->getId()) {
+                $this->modifiedRoleIndexUI($player, $role);
+                return;
+            }
+            if (@unlink($role->getConfig()->getPath())) {
+                unset($this->roles[$role->getId()]);
+                $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_role($role->getName())));
+            }
+        });
+        $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_remove()));
+        $ui->setContent(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::description_modified_remove()));
+        $ui->setButton1(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_accept()));
+        $ui->setButton2(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::buttons_denied()));
+        $player->sendForm($player);
+    }
 }

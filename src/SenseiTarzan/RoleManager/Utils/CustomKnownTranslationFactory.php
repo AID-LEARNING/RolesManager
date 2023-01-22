@@ -19,11 +19,96 @@ class CustomKnownTranslationFactory
         return new Translatable(CustomKnownTranslationKeys::TITLE_CREATE_ROLE, []);
     }
 
+    public static function title_select_role(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_SELECT_ROLE, []);
+    }
+    public static function title_select_type(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_SELECT_TYPE, []);
+    }
+    public static function title_modified_general(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_GENERAL, []);
+    }
+    public static function title_modified_default(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_DEFAULT, []);
+
+    }
+    public static function title_modified_remove(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_REMOVE, []);
+
+    }
+    public static function title_modified_permissions(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_PERMISSIONS, []);
+    }
+    public static function title_modified_heritages(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_HERITAGES, []);
+    }
+    public static function button_modified_general(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_GENERAL, []);
+
+    }
+    public static function description_modified_default(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::DESCRIPTION_MODIFIED_DEFAULT, []);
+
+    }
+    public static function description_modified_remove(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::DESCRIPTION_MODIFIED_REMOVE, []);
+
+    }
+    public static function button_modified_default(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_DEFAULT, []);
+
+    }
+    public static function button_modified_permissions(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_PERMISSIONS, []);
+
+    }
+    public static function button_modified_heritages(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_HERITAGES, []);
+
+    }
+    public static function button_modified_remove(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_REMOVE, []);
+
+    }
+    public static function buttons_accept(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTONS_ACCEPT, []);
+
+    }
+    public static function buttons_denied(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTONS_DENIED, []);
+
+    }
 
 
     public static function message_create_role(string $name): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::CREATE_ROLE, ["role" => $name]);
+    }
+
+    public static function set_default_role_sender(string $name): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::CREATE_ROLE, ["role" => $name]);
+    }
+
+    public static function remove_role(string $name): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::REMOVE_ROLE, ["role" => $name]);
     }
     public static function exemple_image_label(): Translatable
     {

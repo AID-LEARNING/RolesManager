@@ -77,6 +77,14 @@ class Role implements  \JsonSerializable
     }
 
     /**
+     * @param string $image
+     */
+    public function setImage(string $image): void
+    {
+        $this->image = IconForm::create($image);
+    }
+
+    /**
      * @return bool
      */
     public function isDefault(): bool
