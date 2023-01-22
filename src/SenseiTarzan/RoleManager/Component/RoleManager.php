@@ -493,8 +493,8 @@ class RoleManager
     private function modifiedRoleDefaultUI(Player $player, Role $role): void
     {
         $ui = new ModalForm(function (Player $player, ?bool $default) use ($role): void {
-            if (!$default) return;
-            if ($role->getId() === $this->getDefaultRole()->getId()) {
+            if ($default === null) return;
+            if ($role->getId() === $this->getDefaultRole()->getId() || $default === false) {
                 $this->modifiedRoleIndexUI($player, $role);
                 return;
             }
@@ -510,9 +510,9 @@ class RoleManager
 
     private function removeRoleUI(Player $player, Role $role): void
     {
-        $ui = new ModalForm(function (Player $player, ?bool $default) use ($role): void {
-            if (!$default) return;
-            if ($role->getId() === $this->getDefaultRole()->getId()) {
+        $ui = new ModalForm(function (Player $player, ?bool $remove) use ($role): void {
+            if ($remove === null) return;
+            if ($role->getId() === $this->getDefaultRole()->getId() || $remove === false) {
                 $this->modifiedRoleIndexUI($player, $role);
                 return;
             }
