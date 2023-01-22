@@ -454,7 +454,7 @@ class RoleManager
             match ($button) {
                 0 => $this->modifiedRoleGeneralUI($player, $role),
                 1 => $this->modifiedRoleDefaultUI($player, $role),
-                5 => $this->removeRoleUI($player, $role),
+                4 => $this->removeRoleUI($player, $role),
                 default => null
             };
         });
