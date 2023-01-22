@@ -565,7 +565,7 @@ class RoleManager
         });
 
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_add()));
-        foreach (array_filter($role->getAllHeritages(), $this->getRoles(true)) as $heritageId){
+        foreach (array_filter($role->getAllHeritages(), $this->getRoles(true), [$role->getId()]) as $heritageId){
             $ui->addButton(($role = $this->getRole($heritageId))->getName(), ($roleImage = $role->getImage())->getType(), $roleImage->getPath(), $heritageId);
         }
         $player->sendForm($ui);
