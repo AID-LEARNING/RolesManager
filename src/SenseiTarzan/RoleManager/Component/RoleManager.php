@@ -451,7 +451,7 @@ class RoleManager
     {
         $ui = new SimpleForm(function (Player $player, ?int $button) use ($role): void {
             if (!$button) return;
-            match ($button) {
+            match (intval($button)) {
                 0 => $this->modifiedRoleGeneralUI($player, $role),
                 1 => $this->modifiedRoleDefaultUI($player, $role),
                 4 => $this->removeRoleUI($player, $role),
