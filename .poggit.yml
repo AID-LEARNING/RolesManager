@@ -1,5 +1,5 @@
 branches:
-  - stable
+  - beta
 projects:
   RolesManager:
     path: ""
