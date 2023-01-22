@@ -32,3 +32,6 @@ permissions:
   command.create-role.permission:
     description: "Permet de creer des role en UI"
     default: op
+  command.modified-role.permission:
+    description: "Permet de modifier des role en UI"
+    default: op
