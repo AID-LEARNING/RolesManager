@@ -5,11 +5,6 @@ namespace SenseiTarzan\RoleManager\Component;
 use jojoe77777\FormAPI\CustomForm;
 use jojoe77777\FormAPI\ModalForm;
 use jojoe77777\FormAPI\SimpleForm;
-use JsonException;
-use MongoDB\Client;
-use MongoDB\Exception\Exception;
-use pocketmine\item\ItemIds;
-use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
@@ -18,17 +13,13 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
-use pocketmine\utils\TextFormat;
 use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Role\Role;
-use SenseiTarzan\RoleManager\Class\Save\JSONSave;
-use SenseiTarzan\RoleManager\Class\Save\YAMLSave;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Event\EventChangeRole;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
-use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationKeys;
 use SenseiTarzan\RoleManager\Utils\Utils;
 use Symfony\Component\Filesystem\Path;
 
@@ -56,29 +47,30 @@ class RoleManager
 
         $this->server = Server::getInstance();
         $this->loadRoles();
-        $this->loadPermission();
     }
 
 
     public function loadRoles(): void
     {
         $this->roles = [];
+        unset($this->defaultRole);
         RoleArgument::$VALUES = [];
-        foreach (PathScanner::scanDirectoryToConfig(Path::join($this->plugin->getDataFolder(), "roles/"), ['yml']) as $directoryFile => $info_role) {
+        foreach (PathScanner::scanDirectoryToConfig(Path::join($this->plugin->getDataFolder(), "roles/"), ['yml']) as $info_role) {
             $this->addRole(Role::create(
                 $this->plugin,
                 $info_role->get('name'),
                 IconForm::create($info_role->get('image', "")),
-                $info_role->get('default', false),
+                $info_role->get('default'),
                 $info_role->get('priority', 0),
                 array_map(fn(string $role) => Utils::roleStringToId($role), $info_role->get('heritages', [])),
                 $info_role->get('permissions', []),
                 $info_role->get('chatFormat', ""),
                 $info_role->get('nameTagFormat', ""),
-                $info_role->get('changeName', false),
+                $info_role->get('changeName'),
                 $info_role
             ));
         }
+        $this->loadPermission();
     }
 
     /**
@@ -162,7 +154,7 @@ class RoleManager
 
     /**
      * @param string $role id|name
-     * @return Role
+     * @return Role|null
      */
     public function getRoleNullable(string $role): ?Role
     {

@@ -3,6 +3,7 @@
 namespace SenseiTarzan\RoleManager\Commands;
 
 use CortexPE\Commando\BaseCommand;
+use CortexPE\Commando\constraint\InGameRequiredConstraint;
 use pocketmine\command\CommandSender;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\RoleManager\Commands\subCommand\createRoleSubCommand;
@@ -15,6 +16,8 @@ use SenseiTarzan\RoleManager\Commands\subCommand\setRoleSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\addPermissionsSubCommands;
 use SenseiTarzan\RoleManager\Commands\subCommand\setSuffixSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\subPermissionsSubCommand;
+use SenseiTarzan\RoleManager\Component\RolePlayerManager;
+use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 
 class RoleCommands extends BaseCommand
 {
@@ -33,9 +36,11 @@ class RoleCommands extends BaseCommand
         $this->registerSubCommand(new setPermissionsSubCommand($this->plugin, "setperm"));
         $this->registerSubCommand(new addPermissionsSubCommands($this->plugin, "addperm"));
         $this->registerSubCommand(new subPermissionsSubCommand($this->plugin, "subperm"));
+        $this->addConstraint(new InGameRequiredConstraint($this));
     }
 
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslate($sender, ""));    }
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::get_information_role(RolePlayerManager::getInstance()->getPlayer($sender->getName())->getRoleName())));
+    }
 }

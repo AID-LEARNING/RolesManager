@@ -41,6 +41,7 @@ class Main extends PluginBase
         if (!PacketHooker::isRegistered()) {
             PacketHooker::register($this);
         }
+        LanguageManager::getInstance()->loadCommands("role");
 
         EventLoader::loadEventWithClass($this, PlayerListener::class);
 

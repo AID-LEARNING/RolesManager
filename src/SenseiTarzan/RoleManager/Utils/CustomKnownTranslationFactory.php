@@ -14,6 +14,11 @@ class CustomKnownTranslationFactory
         return "\n- " . implode(",\n- ", $permissions) . "\n";
     }
 
+    public static function get_information_role(string $name): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::GET_INFORMATION_ROLE, ["role" => $name]);
+    }
+
     public static function title_create_role(): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::TITLE_CREATE_ROLE, []);
