@@ -51,4 +51,8 @@ class CustomKnownTranslationKeys
     const BUTTON_PERMISSIONS_REMOVE = "Role.button.permissions.remove";
     const TITLE_PERMISSIONS_ADD = "Role.title.permissions.add";
     const TITLE_PERMISSIONS_REMOVE = "Role.title.permissions.remove";
+    const TITLE_HERITAGES_ADD = "Role.title.heritages.add";
+    const TITLE_HERITAGES_REMOVE = "Role.title.heritages.remove";
+    const BUTTON_HERITAGES_ADD = "Role.button.heritages.add";
+    const BUTTON_HERITAGES_REMOVE = "Role.button.heritages.remove";
 }

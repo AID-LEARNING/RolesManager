@@ -23,39 +23,47 @@ class CustomKnownTranslationFactory
     {
         return new Translatable(CustomKnownTranslationKeys::TITLE_SELECT_ROLE, []);
     }
-    public static function title_select_type(): Translatable
+    public static function title_select_type(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_SELECT_TYPE, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_SELECT_TYPE, ["role" => $name]);
     }
-    public static function title_modified_general(): Translatable
+    public static function title_modified_general(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_GENERAL, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_GENERAL, ["role" => $name]);
     }
-    public static function title_modified_default(): Translatable
+    public static function title_modified_default(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_DEFAULT, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_DEFAULT, ["role" => $name]);
 
     }
-    public static function title_modified_remove(): Translatable
+    public static function title_modified_remove(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_REMOVE, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_REMOVE, ["role" => $name]);
 
     }
-    public static function title_modified_permissions(): Translatable
+    public static function title_modified_permissions(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_PERMISSIONS, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_PERMISSIONS, ["role" => $name]);
     }
-    public static function title_permissions_add(): Translatable
+    public static function title_permissions_add(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_PERMISSIONS_ADD, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_PERMISSIONS_ADD, ["role" => $name]);
     }
-    public static function title_permissions_remove(): Translatable
+    public static function title_permissions_remove(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_PERMISSIONS_REMOVE, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_PERMISSIONS_REMOVE, ["role" => $name]);
     }
-    public static function title_modified_heritages(): Translatable
+    public static function title_modified_heritages(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_HERITAGES, []);
+        return new Translatable(CustomKnownTranslationKeys::TITLE_MODIFIED_HERITAGES, ["role" => $name]);
+    }
+    public static function title_heritages_add(string $name): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_HERITAGES_ADD, ["role" => $name]);
+    }
+    public static function title_heritages_remove(string $name): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::TITLE_HERITAGES_REMOVE, ["role" => $name]);
     }
     public static function button_modified_general(): Translatable
     {
@@ -95,6 +103,18 @@ class CustomKnownTranslationFactory
     public static function button_modified_heritages(): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::BUTTON_MODIFIED_HERITAGES, []);
+
+    }
+
+    public static function button_heritages_add(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_HERITAGES_ADD, []);
+
+    }
+
+    public static function button_heritages_remove(): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::BUTTON_HERITAGES_REMOVE, []);
 
     }
     public static function button_modified_remove(): Translatable
