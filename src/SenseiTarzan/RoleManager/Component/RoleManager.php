@@ -527,7 +527,7 @@ class RoleManager
                 return;
             }
             $role->removePermission($permissions);
-            $this->permissionsRoleAddUI($player, $role);
+            $this->permissionsRoleRemoveUI($player, $role);
         });
 
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_remove($role->getName())));
