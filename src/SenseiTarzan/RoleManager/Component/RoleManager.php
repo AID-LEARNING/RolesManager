@@ -55,14 +55,15 @@ class RoleManager
         $this->config = $pl->getConfig();
 
         $this->server = Server::getInstance();
-        $this->LoadRoles();
+        $this->loadRoles();
         $this->loadPermission();
     }
 
 
-    public function LoadRoles(): void
+    public function loadRoles(): void
     {
-
+        $this->roles = [];
+        RoleArgument::$VALUES = [];
         foreach (PathScanner::scanDirectoryToConfig(Path::join($this->plugin->getDataFolder(), "roles/"), ['yml']) as $directoryFile => $info_role) {
             $this->addRole(Role::create(
                 $this->plugin,
@@ -90,7 +91,7 @@ class RoleManager
      * @param string $chatFormat
      * @param string $nameTagFormat
      * @param bool $changeName
-     * @return void
+     * @return Role
      */
     public function createRole(string $name, IconForm $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName): Role
     {

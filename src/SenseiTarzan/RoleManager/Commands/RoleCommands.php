@@ -7,6 +7,7 @@ use pocketmine\command\CommandSender;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\RoleManager\Commands\subCommand\createRoleSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\modifiedRoleSubCommand;
+use SenseiTarzan\RoleManager\Commands\subCommand\reloadRoleSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\setNameRoleCustomSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\setPermissionsSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\setPrefixSubCommand;
@@ -24,6 +25,7 @@ class RoleCommands extends BaseCommand
         $this->setPermission("command.role.permission");
         $this->registerSubCommand(new createRoleSubCommand($this->plugin, "create"));
         $this->registerSubCommand(new modifiedRoleSubCommand($this->plugin, "modify"));
+        $this->registerSubCommand(new reloadRoleSubCommand($this->plugin, "relaod"));
         $this->registerSubCommand(new setRoleSubCommand($this->plugin, "setrole"));
         $this->registerSubCommand(new setNameRoleCustomSubCommand($this->plugin, "setnamecustom"));
         $this->registerSubCommand(new setPrefixSubCommand($this->plugin, "setprefix"));

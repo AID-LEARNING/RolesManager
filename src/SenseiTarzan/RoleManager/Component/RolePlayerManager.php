@@ -7,6 +7,7 @@ use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\player\Player;
+use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\ExtraEvent\Class\EventAttribute;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
@@ -44,6 +45,14 @@ class RolePlayerManager
             $perms[$perm] = true;
         }
         $roleManager->addPermissions($player, $perms);
+    }
+
+    public function reloadPermissions(): void
+    {
+        foreach (Server::getInstance()->getOnlinePlayers() as $player){
+            if (!$player->isConnected()) return;
+            $this->loadPermissions($player, $this->getPlayer($player));
+        }
     }
 
 }

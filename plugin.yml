@@ -35,3 +35,6 @@ permissions:
   command.modified-role.permission:
     description: "Permet de modifier des role en UI"
     default: op
+  command.reload-role.permission:
+    description: "Permet de rafraîchir les roles dans les fichier"
+    default: op
