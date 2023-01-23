@@ -152,15 +152,13 @@ class Role implements  \JsonSerializable
 
     public function setPermissions(array $permissions): void{
         $this->permissions = array_values($permissions);
-        var_dump($this->getPermissions());
         $this->config->set("permissions", $this->getPermissions());
         $this->config->save();
     }
 
 
     public function addPermission(array|string $permission): void{
-        var_dump($permission);
-        $this->setPermissions($this->permissions + (is_array($permission) ? $permission: [$permission]));
+        $this->setPermissions(array_merge($this->permissions , (is_array($permission) ? $permission: [$permission])));
     }
 
 
