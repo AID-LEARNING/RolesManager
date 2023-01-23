@@ -25,7 +25,7 @@ class RoleCommands extends BaseCommand
         $this->setPermission("command.role.permission");
         $this->registerSubCommand(new createRoleSubCommand($this->plugin, "create"));
         $this->registerSubCommand(new modifiedRoleSubCommand($this->plugin, "modify"));
-        $this->registerSubCommand(new reloadRoleSubCommand($this->plugin, "relaod"));
+        $this->registerSubCommand(new reloadRoleSubCommand($this->plugin, "reload"));
         $this->registerSubCommand(new setRoleSubCommand($this->plugin, "setrole"));
         $this->registerSubCommand(new setNameRoleCustomSubCommand($this->plugin, "setnamecustom"));
         $this->registerSubCommand(new setPrefixSubCommand($this->plugin, "setprefix"));
