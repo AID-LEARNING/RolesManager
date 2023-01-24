@@ -51,7 +51,7 @@ class RolePlayer implements \JsonSerializable
     {
         $event = new EventChangePrefix(Server::getInstance()->getPlayerExact($this->getName()), $this->getPrefix(), $prefix);
         $event->call();
-        if (!$event->isCancelled()) return false;
+        if ($event->isCancelled()) return false;
         $this->prefix = $event->getNewPrefix();
         DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $event->getNewPrefix());
         return true;
@@ -71,7 +71,7 @@ class RolePlayer implements \JsonSerializable
     {
         $event = new EventChangeSuffix(Server::getInstance()->getPlayerExact($this->getName()), $this->getSuffix(), $suffix);
         $event->call();
-        if (!$event->isCancelled()) return false;
+        if ($event->isCancelled()) return false;
         $this->suffix = $event->getNewSuffix();
         DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $event->getNewSuffix());
         return true;
@@ -95,7 +95,7 @@ class RolePlayer implements \JsonSerializable
 
         $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), RoleManager::getInstance()->getRole($role));
         $event->call();
-        if (!$event->isCancelled()) return;
+        if ($event->isCancelled()) return false;
         $this->role = $event->getNewRole()->getId();
         DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", $event->getNewRole()->getId());
     }
@@ -115,7 +115,7 @@ class RolePlayer implements \JsonSerializable
         if (!$this->getRole()->isChangeName()) return false;
         $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getNameRoleCustom(), $role);
         $event->call();
-        if (!$event->isCancelled()) return false;
+        if ($event->isCancelled()) return false;
         $this->nameRoleCustom = $event->getNewNameCustom();
         DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $event->getNewNameCustom());
         return true;
