@@ -5,6 +5,7 @@ namespace SenseiTarzan\RoleManager\Component;
 use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\RoleManager\Class\Text\ChatAttribute;
+use SenseiTarzan\RoleManager\Class\Text\CustomChatFormatter;
 use SenseiTarzan\RoleManager\Class\Text\NameTagAttribute;
 use DaPigGuy\PiggyFactions\PiggyFactions;
 use DaPigGuy\PiggyFactions\players\PlayerManager;
@@ -158,18 +159,19 @@ class TextAttributeManager
      * @param Player $player
      * @param string $message
      * @param string|null $format
-     * @return void
+     * @return CustomChatFormatter|null
      */
-    public function formatMessage(Player $player, string $message, string|null &$format): void
+    public function formatMessage(Player $player, string $message, string|null $format = null): ?CustomChatFormatter
     {
         $rolePlayer = RolePlayerManager::getInstance()->getPlayer($player);
         if ($rolePlayer === null){
-            return;
+            return null;
         }
         $format ??= $rolePlayer->getRole()->getChatFormat();
         foreach ($this->getChatAttributesAll() as $chatAttribute) {
             $chatAttribute->runChangeChat($player, $message, $format);
         }
+        return new CustomChatFormatter($format);
     }
 
     /**

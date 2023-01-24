@@ -3,7 +3,7 @@ authors:
   - SenseiTarzan
 version: 1.0.2
 main: SenseiTarzan\RoleManager\Main
-api: 4.0.0
+api: 5.0.0
 permissions:
   command.role.permission:
     description: "Permet de voir la command role"
