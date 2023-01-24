@@ -28,17 +28,21 @@ class setNameRoleCustomSubCommand extends BaseSubCommand
 
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
-        if (!$this->testPermissionSilent($sender)){
+        if (!$this->testPermissionSilent($sender)) {
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']);
-        if ($target === null){
+        if ($target === null) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
             return;
         }
         $nameCustom = $args['nameCustom'];
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $nameCustom)));
-        RoleManager::getInstance()->setNameRoleCustom($target, $nameCustom);
+        if (RoleManager::getInstance()->setNameRoleCustom($target, $nameCustom)) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $nameCustom)));
+            return;
+        }
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
+
 
     }
 }

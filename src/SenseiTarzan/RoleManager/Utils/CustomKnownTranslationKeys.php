@@ -55,4 +55,7 @@ class CustomKnownTranslationKeys
     const TITLE_HERITAGES_REMOVE = "Role.title.heritages.remove";
     const BUTTON_HERITAGES_ADD = "Role.button.heritages.add";
     const BUTTON_HERITAGES_REMOVE = "Role.button.heritages.remove";
+    const ERROR_SET_NAME_ROLE_CUSTOM_SENDER =  "Error.RolePlayer.nameCustom";
+    const ERROR_SET_PREFIX_SENDER = "Error.RolePlayer.prefix";
+    const ERROR_SET_SUFFIX_SENDER = "Error.RolePlayer.suffix";
 }

@@ -284,12 +284,6 @@ class RoleManager
         if (is_string($role)) {
             $role = $this->getRole($role);
         }
-        if (!is_string($player)) {
-            $event = new EventChangeRole($player, RolePlayerManager::getInstance()->getPlayer($player)->getRole(), $role);
-            $event->call();
-            if ($event->isCancelled()) return;
-            $role = $event->getNewRole();
-        }
         $this->updateDataPlayer($player, $role);
     }
 
@@ -297,30 +291,34 @@ class RoleManager
      * @param Player $player
      * @param string $prefix
      */
-    public function setPrefix(Player $player, string $prefix): void
+    public function setPrefix(Player $player, string $prefix): bool
     {
+        if (!RolePlayerManager::getInstance()->getPlayer($player)->setPrefix($prefix)) return false;
         $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_prefix_target($prefix)));
-        RolePlayerManager::getInstance()->getPlayer($player)->setPrefix($prefix);
+        return true;
     }
 
     /**
      * @param Player $player
      * @param string $roleNameCustom
+     * @return bool
      */
-    public function setNameRoleCustom(Player $player, string $roleNameCustom): void
+    public function setNameRoleCustom(Player $player, string $roleNameCustom): bool
     {
-        $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_name_role_custom_target($roleNameCustom)));
-        RolePlayerManager::getInstance()->getPlayer($player)->setRoleNameCustom($roleNameCustom);
+        if (!RolePlayerManager::getInstance()->getPlayer($player)->setRoleNameCustom($roleNameCustom)) return false;
+        $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_name_role_custom_target($roleNameCustom)));;
+        return true;
     }
 
     /**
      * @param Player $player
      * @param string $suffix
      */
-    public function setSuffix(Player $player, string $suffix): void
+    public function setSuffix(Player $player, string $suffix): bool
     {
+        if (!RolePlayerManager::getInstance()->getPlayer($player)->setSuffix($suffix)) return false;
         $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_suffix_target($suffix)));
-        RolePlayerManager::getInstance()->getPlayer($player)->setSuffix($suffix);
+        return true;
     }
 
     /**
@@ -346,8 +344,7 @@ class RoleManager
      * @param array|string $permission
      */
     public function removePermissionPlayer(Player|string $player, array|string $permission): void
-    {
-        $player = $player instanceof Player ? $player->getName() : $player;
+    {;
         $this->updateDataPlayer($player, $permission, "removePermissions");
     }
 
