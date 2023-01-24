@@ -24,5 +24,4 @@ projects:
         version: ^1.0.0
       - src: Paroxity/Commando/Commando
         version: ^3.0.0
-
 ...
