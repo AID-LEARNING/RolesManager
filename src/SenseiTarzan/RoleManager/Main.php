@@ -14,7 +14,7 @@ use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\TextAttributeManager;
 use SenseiTarzan\RoleManager\Listener\PlayerListener;
 use SenseiTarzan\RoleManager\Task\NameTagTask;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 class Main extends PluginBase
 {

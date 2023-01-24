@@ -18,7 +18,6 @@ use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
-use SenseiTarzan\RoleManager\Event\EventChangeRole;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\Utils;
 use Symfony\Component\Filesystem\Path;
