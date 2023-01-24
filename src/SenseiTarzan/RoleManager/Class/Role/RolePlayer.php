@@ -95,7 +95,7 @@ class RolePlayer implements \JsonSerializable
 
         $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), RoleManager::getInstance()->getRole($role));
         $event->call();
-        if (!$event->isCancelled()) return;
+        if ($event->isCancelled()) return;
         $this->role = $event->getNewRole()->getId();
         DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", $event->getNewRole()->getId());
     }
