@@ -146,7 +146,7 @@ class CustomKnownTranslationFactory
 
     public static function set_default_role_sender(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::CREATE_ROLE, ["role" => $name]);
+        return new Translatable(CustomKnownTranslationKeys::SET_DEFAULT_ROLE_SENDER, ["role" => $name]);
     }
 
     public static function remove_role(string $name): Translatable
