@@ -28,17 +28,21 @@ class setSuffixSubCommand extends BaseSubCommand
 
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
-        if (!$this->testPermissionSilent($sender)){
+        if (!$this->testPermissionSilent($sender)) {
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']);
-        if ($target === null){
+        if ($target === null) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
             return;
         }
         $suffix = $args['suffix'];
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_suffix_sender($target, $suffix)));
-        RoleManager::getInstance()->setSuffix($target, $suffix);
+        if (RoleManager::getInstance()->setSuffix($target, $suffix)) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_suffix_sender($target, $suffix)));
+            return;
+        }
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_suffix_sender($target, $suffix)));
+
 
     }
 }

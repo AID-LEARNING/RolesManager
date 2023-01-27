@@ -7,4 +7,8 @@ English:
   default: false
   mini: "eng"
   image: ""
+Deutsch:
+  default: false
+  mini: "deu"
+  image: ""
 ...

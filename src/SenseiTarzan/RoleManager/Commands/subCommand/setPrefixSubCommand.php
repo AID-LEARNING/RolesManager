@@ -28,17 +28,21 @@ class setPrefixSubCommand extends BaseSubCommand
 
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
-        if (!$this->testPermissionSilent($sender)){
+        if (!$this->testPermissionSilent($sender)) {
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']);
-        if ($target === null){
+        if ($target === null) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
             return;
         }
         $prefix = $args['prefix'];
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_prefix_sender($target, $prefix)));
-        RoleManager::getInstance()->setPrefix($target, $prefix);
+        if (RoleManager::getInstance()->setPrefix($target, $prefix)) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_prefix_sender($target, $prefix)));
+            return;
+        }
+
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_prefix_sender($target, $prefix)));
 
     }
 }

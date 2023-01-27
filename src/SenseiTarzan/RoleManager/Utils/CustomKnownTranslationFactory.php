@@ -146,7 +146,7 @@ class CustomKnownTranslationFactory
 
     public static function set_default_role_sender(string $name): Translatable
     {
-        return new Translatable(CustomKnownTranslationKeys::CREATE_ROLE, ["role" => $name]);
+        return new Translatable(CustomKnownTranslationKeys::SET_DEFAULT_ROLE_SENDER, ["role" => $name]);
     }
 
     public static function remove_role(string $name): Translatable
@@ -206,6 +206,11 @@ class CustomKnownTranslationFactory
         return new Translatable(CustomKnownTranslationKeys::SET_SUFFIX_SENDER, ['player' => $player->getName() , 'suffix'=> $suffix]);
     }
 
+    public static function error_set_suffix_sender(Player $player, string $suffix): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::ERROR_SET_SUFFIX_SENDER, ['player' => $player->getName() , 'suffix'=> $suffix]);
+    }
+
     public static function set_suffix_target(string $suffix): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::SET_SUFFIX_TARGET, ['suffix'=> $suffix]);
@@ -214,6 +219,10 @@ class CustomKnownTranslationFactory
     {
         return new Translatable(CustomKnownTranslationKeys::SET_PREFIX_SENDER, ['player' => $player->getName(), 'prefix'=> $prefix]);
     }
+    public static function error_set_prefix_sender(Player $player, string $prefix): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::ERROR_SET_PREFIX_SENDER, ['player' => $player->getName(), 'prefix'=> $prefix]);
+    }
     public static function set_prefix_target( string $prefix): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::SET_PREFIX_TARGET, ['prefix'=> $prefix]);
@@ -221,6 +230,10 @@ class CustomKnownTranslationFactory
     public static function set_name_role_sender(Player $player, string $nameRoleCustom): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::SET_NAME_ROLE_CUSTOM_SENDER, ['player' => $player->getName(), 'nameCustom'=> $nameRoleCustom]);
+    }
+    public static function error_set_name_role_sender(Player $player, string $nameRoleCustom): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::ERROR_SET_NAME_ROLE_CUSTOM_SENDER, ['player' => $player->getName(), 'nameCustom'=> $nameRoleCustom]);
     }
     public static function set_name_role_custom_target(string $nameRoleCustom): Translatable
     {

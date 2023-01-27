@@ -23,7 +23,7 @@ interface IDataSave
 
     /**
      * @param string $id
-     * @param mixed $data 'role' | 'addPermission' | 'removePermission' | 'setPermission'
+     * @param string $type
      * @param mixed $data
      * @return void
      */

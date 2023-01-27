@@ -2,8 +2,13 @@
 
 namespace SenseiTarzan\RoleManager\Class\Role;
 
+use pocketmine\Server;
 use SenseiTarzan\RoleManager\Component\DataManager;
 use SenseiTarzan\RoleManager\Component\RoleManager;
+use SenseiTarzan\RoleManager\Event\EventChangeNameCustom;
+use SenseiTarzan\RoleManager\Event\EventChangePrefix;
+use SenseiTarzan\RoleManager\Event\EventChangeRole;
+use SenseiTarzan\RoleManager\Event\EventChangeSuffix;
 
 class RolePlayer implements \JsonSerializable
 {
@@ -42,10 +47,14 @@ class RolePlayer implements \JsonSerializable
     /**
      * @param string $prefix
      */
-    public function setPrefix(string $prefix): void
+    public function setPrefix(string $prefix): bool
     {
-        $this->prefix = $prefix;
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $prefix);
+        $event = new EventChangePrefix(Server::getInstance()->getPlayerExact($this->getName()), $this->getPrefix(), $prefix);
+        $event->call();
+        if ($event->isCancelled()) return false;
+        $this->prefix = $event->getNewPrefix();
+        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $event->getNewPrefix());
+        return true;
     }
     /**
      * @return string
@@ -58,10 +67,14 @@ class RolePlayer implements \JsonSerializable
     /**
      * @param string $suffix
      */
-    public function setSuffix(string $suffix): void
+    public function setSuffix(string $suffix): bool
     {
-        $this->suffix = $suffix;
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $suffix);
+        $event = new EventChangeSuffix(Server::getInstance()->getPlayerExact($this->getName()), $this->getSuffix(), $suffix);
+        $event->call();
+        if ($event->isCancelled()) return false;
+        $this->suffix = $event->getNewSuffix();
+        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $event->getNewSuffix());
+        return true;
     }
 
 
@@ -79,8 +92,12 @@ class RolePlayer implements \JsonSerializable
      */
     public function setRole(string $role): void
     {
-        $this->role = $role;
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", $role);
+
+        $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), RoleManager::getInstance()->getRole($role));
+        $event->call();
+        if ($event->isCancelled()) return;
+        $this->role = $event->getNewRole()->getId();
+        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", $event->getNewRole()->getId());
     }
 
     /**
@@ -93,11 +110,15 @@ class RolePlayer implements \JsonSerializable
     /**
      * @param string $role
      */
-    public function setRoleNameCustom(string $role): void
+    public function setRoleNameCustom(string $role): bool
     {
-        if (!$this->getRole()->isChangeName()) return;
-        $this->nameRoleCustom = $role;
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $role);
+        if (!$this->getRole()->isChangeName()) return false;
+        $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getNameRoleCustom(), $role);
+        $event->call();
+        if ($event->isCancelled()) return false;
+        $this->nameRoleCustom = $event->getNewNameCustom();
+        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $event->getNewNameCustom());
+        return true;
     }
 
     public function getRoleName(): string{
