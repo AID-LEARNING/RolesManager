@@ -69,7 +69,7 @@ class YAMLSave implements IDataSave
                 "addPermissions", "removePermissions", "setPermissions" => 'permissions',
                 default => $type
             })), match ($type) {
-            "addPermissions" => $this->config->getNested($search) + (is_string($data) ? [$data] : $data),
+            "addPermissions" => array_merge($this->config->getNested($search) ,(is_string($data) ? [$data] : $data)) ,
             "removePermissions" => array_values(array_diff($this->config->getNested($search), (is_string($data) ? [$data] : $data))),
             "setPermissions" => is_string($data) ? [$data] : $data,
             default => $data
