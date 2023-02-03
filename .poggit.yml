@@ -2,6 +2,7 @@
 branches:
   - stable
   - beta
+  - pm5
 projects:
   RolesManager:
     path: ""
