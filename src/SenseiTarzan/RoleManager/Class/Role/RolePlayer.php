@@ -105,7 +105,7 @@ class RolePlayer implements \JsonSerializable
      */
     public function getNameRoleCustom(): ?string
     {
-        return $this->nameRoleCustom;
+        return $this->nameRoleCustom ?? $this->getRole()->getName();
     }
     /**
      * @param string $role
@@ -122,7 +122,7 @@ class RolePlayer implements \JsonSerializable
     }
 
     public function getRoleName(): string{
-        return ($this->getRole()->isChangeName() ? $this->getNameRoleCustom()  : null) ?? $this->getRole()->getName();
+        return $this->getRole()->isChangeName() ? $this->getNameRoleCustom()  : $this->getRole()->getName();
     }
 
     /**
