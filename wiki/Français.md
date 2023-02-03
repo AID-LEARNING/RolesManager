@@ -60,17 +60,13 @@ Cela va creer un ``{&playerXpLvl}`` est vous pourrez l'ajouter dans le nameTagFo
 
 # Creation de votre propre system de sauvegarde de données du joueur
 ### [⚠️⚠️] Ceci est un exemple je ne cherche pas l'optimisation, mais montre comment utiliser et vous devez entre experimenter pour le faire
+
 ```php
 <?php
 
 namespace SenseiTarzan\RoleManager\Class\Save;
 
-use pocketmine\player\Player;
-use pocketmine\utils\Config;
-use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
-use SenseiTarzan\RoleManager\Component\RoleManager;
-use SenseiTarzan\RoleManager\Component\RolePlayerManager;
-use Symfony\Component\Filesystem\Path;
+use pocketmine\player\Player;use pocketmine\utils\Config;use SenseiTarzan\DataBase\Class\IDataSave;use SenseiTarzan\RoleManager\Class\Role\RolePlayer;use SenseiTarzan\RoleManager\Component\RoleManager;use SenseiTarzan\RoleManager\Component\RolePlayerManager;use Symfony\Component\Filesystem\Path;
 
 class JSONSeparedSave implements IDataSave
 {

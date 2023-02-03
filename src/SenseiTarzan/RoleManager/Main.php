@@ -3,13 +3,13 @@ namespace SenseiTarzan\RoleManager;
 
 use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
+use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\ExtraEvent\Component\EventLoader;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Save\JSONSave;
 use SenseiTarzan\RoleManager\Class\Save\YAMLSave;
 use SenseiTarzan\RoleManager\Commands\RoleCommands;
-use SenseiTarzan\RoleManager\Component\DataManager;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\TextAttributeManager;
 use SenseiTarzan\RoleManager\Listener\PlayerListener;
@@ -28,7 +28,7 @@ class Main extends PluginBase
         }
         new LanguageManager($this);
         new RoleManager($this);
-        DataManager::getInstance()->setSaveDataSystem(match (strtolower($this->getConfig()->get("data-type", "json"))) {
+        DataManager::getInstance()->setDataSystem(match (strtolower($this->getConfig()->get("data-type", "json"))) {
             "yml", "yaml" => new YAMLSave($this->getDataFolder()),
             "json" => new JSONSave($this->getDataFolder()),
             default => null

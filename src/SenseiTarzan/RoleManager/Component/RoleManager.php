@@ -13,6 +13,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
+use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;

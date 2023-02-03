@@ -22,6 +22,8 @@ projects:
         version: ^2.1.0
       - src: AID-LEARNING/IconForm/libIconForm
         version: ^1.0.0
+      - src: AID-LEARNING/libDataBase/libDataBase
+        version: ^1.0.0
       - src: Paroxity/Commando/Commando
         version: ^3.0.0
 

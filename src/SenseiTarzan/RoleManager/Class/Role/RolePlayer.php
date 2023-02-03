@@ -3,7 +3,7 @@
 namespace SenseiTarzan\RoleManager\Class\Role;
 
 use pocketmine\Server;
-use SenseiTarzan\RoleManager\Component\DataManager;
+use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Event\EventChangeNameCustom;
 use SenseiTarzan\RoleManager\Event\EventChangePrefix;
