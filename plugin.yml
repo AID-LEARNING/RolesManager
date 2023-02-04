@@ -6,35 +6,35 @@ main: SenseiTarzan\RoleManager\Main
 api: 4.0.0
 permissions:
   command.role.permission:
-    description: "Permet de voir la command role"
+    description: "Allows to see the command role"
     default: op
   command.nameCustom.permission:
-    description: "Permet de voir la command role"
+    description: "Allows you to set a custom role name"
     default: op
   command.set-role.permission:
-    description: "Permet de mettre un role un joueur"
+    description: "Allows to put a role a player"
     default: true
   command.suffix.permission:
-    description: "Permet de mettre un suffix a un joueur"
+    description: "Allows you to put a suffix to a player"
     default: op
   command.prefix.permission:
-    description: "Permet de mettre un prefix a un joueur"
+    description: "Allows to put a prefix to a player"
     default: op
   command.set-permissions.permission:
-    description: "Permet de mettre une ou des permissions a un joueur"
+    description: "Allows you to set one or more permissions for a player"
     default: op
   command.add-permissions.permission:
-    description: "Permet d'ajouter une ou des permissions a un joueur"
+    description: "Allows you to add one or more permissions to a player"
     default: op
   command.sub-permissions.permission:
-    description: "Permet d'enlever une ou des permissions a un joueur"
+    description: "Allows you to remove one or more permissions from a player"
     default: op
   command.create-role.permission:
-    description: "Permet de creer des role en UI"
+    description: "Allows you to create roles in UI"
     default: op
   command.modified-role.permission:
-    description: "Permet de modifier des role en UI"
+    description: "Allows you to modify roles in UI"
     default: op
   command.reload-role.permission:
-    description: "Permet de rafraîchir les roles dans les fichier"
+    description: "Allows to refresh the roles in the files"
     default: op
