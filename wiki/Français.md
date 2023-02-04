@@ -167,6 +167,12 @@ use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 RolePlayerManager::getInstance()->getPlayer(Player|string)->getRole();
 ````
 
+# Récupérer le role name ou si vous aves un role custom name avec qui va joueur [En ligne]
+````php
+use SenseiTarzan\RoleManager\Component\RolePlayerManager;
+RolePlayerManager::getInstance()->getPlayer(Player|string)->getRoleName();
+````
+
 # Mettre un role à un joueur
 ````php
 use SenseiTarzan\RoleManager\Component\RoleManager;
