@@ -63,12 +63,13 @@ Cela va creer un ``{&playerXpLvl}`` est vous pourrez l'ajouter dans le nameTagFo
 ```php
 <?php
 
-namespace SenseiTarzan\RoleManager\Class\Save;
+namespace xxxx\xxxx;
 
 use pocketmine\player\Player;
 use pocketmine\utils\Config;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Component\RoleManager;
+use SenseiTarzan\RoleManager\Class\Save\IDataSave;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 use Symfony\Component\Filesystem\Path;
 
@@ -108,7 +109,7 @@ class JSONSeparedSave implements IDataSave
 
     /**
      * @param string $id
-     * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions'
+     * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions' | 'nameRoleCustom'
      * @param mixed $data
      * @return void
      * @throws JsonException
@@ -141,7 +142,7 @@ class JSONSeparedSave implements IDataSave
          "addPermission", "removePermission", "setPermission" => 'permissions',
          default => $type
         }, match ($type) {
-            "addPermission" => $this->config->get($search) + (is_string($data) ? [$data] : $data),
+            "addPermission" => array_merge($this->config->get($search),(is_string($data) ? [$data] : $data)),
             "removePermission" => array_diff($this->config->get($search), (is_string($data) ? [$data] : $data)),
             "setPermission" => is_string($data) ? [$data] : $data,
             default => $data
