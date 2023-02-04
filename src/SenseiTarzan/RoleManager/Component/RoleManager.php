@@ -70,7 +70,6 @@ class RoleManager
                 $info_role
             ));
         }
-        $this->loadPermission();
     }
 
     /**
@@ -159,19 +158,6 @@ class RoleManager
     public function getRoleNullable(string $role): ?Role
     {
         return $this->roles[Utils::roleStringToId($role)] ?? null;
-    }
-
-    public function loadPermission(): void
-    {
-        $op = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_OPERATOR);
-        foreach ($this->roles as $role => $info) {
-            foreach ($info->getPermissions() as $permission) {
-                if (PermissionManager::getInstance()->getPermission($permission) === null) {
-                    PermissionManager::getInstance()->addPermission(new Permission($permission, "$role Role permission"));
-                    $op->addChild($permission, true);
-                }
-            }
-        }
     }
 
     /**
