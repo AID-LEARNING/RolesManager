@@ -62,12 +62,13 @@ This will create a ``{&playerXpLvl}`` and you can add it in the nameTagFormat
 ```php
 <?php
 
-namespace xxxx/xxxx;
+namespace xxxx\xxxx;
 
 use pocketmine\player\Player;
 use pocketmine\utils\Config;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Component\RoleManager;
+use SenseiTarzan\RoleManager\Class\Save\IDataSave;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 use Symfony\Component\Filesystem\Path;
 
@@ -107,7 +108,7 @@ class JSONSeparedSave implements IDataSave
 
     /**
      * @param string $id
-     * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions'
+     * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions' | 'nameRoleCustom'
      * @param mixed $data
      * @return void
      * @throws JsonException
@@ -122,7 +123,7 @@ class JSONSeparedSave implements IDataSave
 
     /**
      * @param string $id
-     * @param string $type  'role' |  'addPermission' | 'removePermission' | 'setPermission'
+     * @param string $type  'role' | 'suffix' | 'prefix' | 'addPermission' | 'removePermission' | 'setPermission'
      * @param mixed $data
      * @return void
      * @throws JsonException
@@ -140,7 +141,7 @@ class JSONSeparedSave implements IDataSave
          "addPermission", "removePermission", "setPermission" => 'permissions',
          default => $type
         }, match ($type) {
-            "addPermission" => $this->config->get($search) + (is_string($data) ? [$data] : $data),
+            "addPermission" => array_merge($this->config->get($search),(is_string($data) ? [$data] : $data)),
             "removePermission" => array_diff($this->config->get($search), (is_string($data) ? [$data] : $data)),
             "setPermission" => is_string($data) ? [$data] : $data,
             default => $data
@@ -164,6 +165,12 @@ RoleManager::getInstance()->getRole("id_role" or "name_role")
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 RolePlayerManager::getInstance()->getPlayer(Player|string)->getRole();
 ````
+# Get the role name or if you have a custom role name with who will play [Online]
+````php
+use SenseiTarzanRoleManagerComponentRolePlayerManager;
+RolePlayerManager::getInstance()->getPlayer(Player|string)->getRoleName();
+````
+
 # Put a role to a player
 ````php
 use SenseiTarzan\RoleManager\Component\RoleManager;
