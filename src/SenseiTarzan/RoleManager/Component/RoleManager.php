@@ -345,9 +345,8 @@ class RoleManager
         $target = RolePlayerManager::getInstance()->getPlayer($player);
         $isPlayer = $player instanceof Player;
 
-        $isArray = is_array($data);
         if ($target === null && !$isPlayer) {
-            DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
+            DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, ($data instanceof Role ? $data->getId() : $data));
             return;
         }
         if (is_string($player)) {
