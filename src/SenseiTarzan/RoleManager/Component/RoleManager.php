@@ -84,12 +84,12 @@ class RoleManager
      * @param bool $changeName
      * @return Role
      */
-    public function createRole(string $name, IconForm $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName): Role
+    public function createRole(string $name, string $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName): Role
     {
         $role = Role::create(
             $this->plugin,
             $name,
-            $image,
+            IconForm::create(""),
             $default,
             $priority,
             Utils::rolesStringToIdArray($heritages),
@@ -388,7 +388,7 @@ class RoleManager
                 return;
             }
             $name = $args[0];
-            $image = IconForm::create($args[2]);
+            $image = $args[2] ?? "";
             $default = $args[3];
             $priority = $args[5];
             $heritages = array_values(array_filter(explode(";", $args[7]), fn($heritage) => $heritage !== ""));
