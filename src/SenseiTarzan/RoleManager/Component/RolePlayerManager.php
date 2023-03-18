@@ -37,13 +37,9 @@ class RolePlayerManager
 
     public function loadPermissions(Player $player, RolePlayer $rolePlayer): void
     {
+
         $roleManager = RoleManager::getInstance();
-        $perm_update = $rolePlayer->getPermissions();
-        $permsAll = $perm_update +  $rolePlayer->getRole()->getAllPermissions();
-        $perms = [];
-        foreach ($permsAll as $perm) {
-            $perms[$perm] = true;
-        }
+        var_dump($perms = array_fill_keys(array_merge($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()), true));
         $roleManager->addPermissions($player, $perms);
     }
 
