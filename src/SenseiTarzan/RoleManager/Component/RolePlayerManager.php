@@ -37,10 +37,11 @@ class RolePlayerManager
 
     public function loadPermissions(Player $player, RolePlayer $rolePlayer): void
     {
-
-        $roleManager = RoleManager::getInstance();
-        var_dump($perms = array_fill_keys(array_merge($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()), true));
-        $roleManager->addPermissions($player, $perms);
+        var_dump($this->combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()));
+        RoleManager::getInstance()->addPermissions($player, $this->combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()));
+    }
+    private function combinePermissionsAndSetTrue(...$perms): array {
+        return array_fill_keys(array_merge($perms), true);
     }
 
     public function reloadPermissions(): void
