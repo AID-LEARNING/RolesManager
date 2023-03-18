@@ -37,7 +37,6 @@ class RolePlayerManager
 
     public function loadPermissions(Player $player, RolePlayer $rolePlayer): void
     {
-        var_dump($this->combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()));
         RoleManager::getInstance()->addPermissions($player, $this->combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()));
     }
     private function combinePermissionsAndSetTrue(...$perms): array {
