@@ -41,7 +41,7 @@ class RolePlayerManager
         RoleManager::getInstance()->addPermissions($player, $this->combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()));
     }
     private function combinePermissionsAndSetTrue(...$perms): array {
-        return array_fill_keys(array_merge($perms), true);
+        return array_fill_keys(array_merge(...$perms), true);
     }
 
     public function reloadPermissions(): void
