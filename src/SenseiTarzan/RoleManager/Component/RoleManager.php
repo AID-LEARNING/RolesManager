@@ -330,7 +330,7 @@ class RoleManager
      * @param array|string $permission
      */
     public function removePermissionPlayer(Player|string $player, array|string $permission): void
-    {;
+    {
         $this->updateDataPlayer($player, $permission, "removePermissions");
     }
 
@@ -343,16 +343,15 @@ class RoleManager
     private function updateDataPlayer(Player|string $player, array|string|Role $data, string $type = "role"): void
     {
         $target = RolePlayerManager::getInstance()->getPlayer($player);
+        if (is_string($player)) {
+            $player = Server::getInstance()->getPlayerExact($player) ?? $player;  
+        }
         $isPlayer = $player instanceof Player;
-
-        if ($target === null && !$isPlayer) {
-            DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, ($data instanceof Role ? $data->getId() : $data));
+        if ($target === null) {
+            DataManager::getInstance()->getDataSystem()->updateOffline($isPlayer ? $player->getName() : $player, $type, ($data instanceof Role ? $data->getId() : $data));
             return;
         }
-        if (is_string($player)) {
-            $player = Server::getInstance()->getPlayerExact($player) ?? $player;
-            $isPlayer = $player instanceof Player;
-        }
+        
         if (!$isPlayer) return;
         if ($player->isConnected()) {
             switch ($type) {
