@@ -330,7 +330,7 @@ class RoleManager
      * @param array|string $permission
      */
     public function removePermissionPlayer(Player|string $player, array|string $permission): void
-    {;
+    {
         $this->updateDataPlayer($player, $permission, "removePermissions");
     }
 
