@@ -49,6 +49,6 @@ class Main extends PluginBase
             $this->getScheduler()->scheduleRepeatingTask(new NameTagTask(), 20);
         }
 
-        $this->getServer()->getCommandMap()->register("senseitarzan", new RoleCommands($this, "role", "Role Command", ["group"]));
+        $this->getServer()->getCommandMap()->register("rolemanager", new RoleCommands($this, "role", "Role Command", ["group"]));
     }
 }
