@@ -1,40 +1,40 @@
 name: RoleManager
 authors:
   - SenseiTarzan
-version: 1.0.2
+version: 1.0.3
 main: SenseiTarzan\RoleManager\Main
 api: 4.0.0
 permissions:
-  command.role.permission:
+  rolemanager.command.role.permission:
     description: "Allows to see the command role"
     default: op
-  command.nameCustom.permission:
+  rolemanager.command.nameCustom.permission:
     description: "Allows you to set a custom role name"
     default: op
-  command.set-role.permission:
+  rolemanager.command.set-role.permission:
     description: "Allows to put a role a player"
     default: true
-  command.suffix.permission:
+  rolemanager.command.suffix.permission:
     description: "Allows you to put a suffix to a player"
     default: op
-  command.prefix.permission:
+  rolemanager.command.prefix.permission:
     description: "Allows to put a prefix to a player"
     default: op
-  command.set-permissions.permission:
+  rolemanager.command.set-permissions.permission:
     description: "Allows you to set one or more permissions for a player"
     default: op
-  command.add-permissions.permission:
+  rolemanager.command.add-permissions.permission:
     description: "Allows you to add one or more permissions to a player"
     default: op
-  command.sub-permissions.permission:
+  rolemanager.command.sub-permissions.permission:
     description: "Allows you to remove one or more permissions from a player"
     default: op
-  command.create-role.permission:
+  rolemanager.command.create-role.permission:
     description: "Allows you to create roles in UI"
     default: op
-  command.modified-role.permission:
+  rolemanager.command.modified-role.permission:
     description: "Allows you to modify roles in UI"
     default: op
-  command.reload-role.permission:
+  rolemanager.command.reload-role.permission:
     description: "Allows to refresh the roles in the files"
     default: op
