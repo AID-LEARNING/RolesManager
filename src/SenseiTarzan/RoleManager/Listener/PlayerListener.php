@@ -14,19 +14,19 @@ use SenseiTarzan\RoleManager\Component\TextAttributeManager;
 class PlayerListener
 {
 
-    #[EventAttribute(EventPriority::HIGHEST)]
+    #[EventAttribute(EventPriority::LOWEST)]
     public function onJoin(PlayerJoinEvent $event): void
     {
         DataManager::getInstance()->getDataSystem()->loadDataPlayer($event->getPlayer());
     }
 
-    #[EventAttribute(EventPriority::HIGHEST)]
+    #[EventAttribute(EventPriority::LOWEST)]
     public function onQuit(PlayerQuitEvent $event): void
     {
         RolePlayerManager::getInstance()->removePlayer($event->getPlayer());
     }
 
-    #[EventAttribute(EventPriority::HIGHEST)]
+    #[EventAttribute(EventPriority::MONITOR)]
     public function onChat(PlayerChatEvent $event): void
     {
         $event->setFormatter(TextAttributeManager::getInstance()->formatMessage($event->getPlayer(), $event->getMessage()));

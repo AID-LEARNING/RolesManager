@@ -32,12 +32,12 @@ class Role implements  \JsonSerializable
         $this->nameTagFormat = str_replace('\n', "\n", $nameTagFormat);
     }
 
-    public static function create(Plugin $plugin, string $name,IconForm $image,bool $default,float $priority,array $heritages,array $permissions, string $chatFormat, string $nameTagFormat,bool $changeName, ?Config $config = null): Role
+    public static function create(Plugin $plugin, string $name, string $image,bool $default,float $priority,array $heritages,array $permissions, string $chatFormat, string $nameTagFormat,bool $changeName, ?Config $config = null): Role
     {
         $role = new Role(
             Utils::roleStringToId($name = Utils::removeColorInRole($name)),
             $name,
-            $image,
+            IconForm::create($image),
             $default,
             $priority,
             $heritages,

@@ -59,7 +59,7 @@ class RoleManager
             $this->addRole(Role::create(
                 $this->plugin,
                 $info_role->get('name'),
-                IconForm::create($info_role->get('image', "")),
+                $info_role->get('image', ""),
                 $info_role->get('default'),
                 $info_role->get('priority', 0),
                 array_map(fn(string $role) => Utils::roleStringToId($role), $info_role->get('heritages', [])),
@@ -70,12 +70,11 @@ class RoleManager
                 $info_role
             ));
         }
-        $this->loadPermission();
     }
 
     /**
      * @param string $name
-     * @param IconForm $image
+     * @param string $image
      * @param bool $default
      * @param float $priority
      * @param array $heritages
@@ -85,9 +84,10 @@ class RoleManager
      * @param bool $changeName
      * @return Role
      */
-    public function createRole(string $name, IconForm $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName): Role
+    public function createRole(string $name, string $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName): Role
     {
-        $role = Role::create(
+
+        $this->addRole($role = Role::create(
             $this->plugin,
             $name,
             $image,
@@ -98,16 +98,22 @@ class RoleManager
             $chatFormat,
             $nameTagFormat,
             $changeName
-        );
-        $this->addRole($role, true);
+        ), true);
         return $role;
     }
 
+    /**
+     * @return array
+     */
     private function getPermissionInString(): array{
         return array_map(fn (Permission $value) => $value->getName(), PermissionManager::getInstance()->getPermissions());
     }
 
-
+    /**
+     * @param Role $role
+     * @param bool $overwrite
+     * @return void
+     */
     public function addRole(Role $role, bool $overwrite = false): void
     {
         if (array_key_exists($role->getId(), $this->getRoles())) return;
@@ -119,7 +125,9 @@ class RoleManager
         $this->roles[$role->getId()] = $role;
     }
 
-
+    /**
+     * @return Role
+     */
     public function getDefaultRole(): Role
     {
         return $this->defaultRole;
@@ -137,6 +145,9 @@ class RoleManager
         $this->defaultRole = $defaultRole;
     }
 
+    /**
+     * @return array
+     */
     public function getExcludeNameRole(): array
     {
         return $this->config->get("exclude-name-role", $this->getRoles(true, true));
@@ -159,19 +170,6 @@ class RoleManager
     public function getRoleNullable(string $role): ?Role
     {
         return $this->roles[Utils::roleStringToId($role)] ?? null;
-    }
-
-    public function loadPermission(): void
-    {
-        $op = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_OPERATOR);
-        foreach ($this->roles as $role => $info) {
-            foreach ($info->getPermissions() as $permission) {
-                if (PermissionManager::getInstance()->getPermission($permission) === null) {
-                    PermissionManager::getInstance()->addPermission(new Permission($permission, "$role Role permission"));
-                    $op->addChild($permission, true);
-                }
-            }
-        }
     }
 
     /**
@@ -356,19 +354,19 @@ class RoleManager
      */
     private function updateDataPlayer(Player|string $player, array|string|Role $data, string $type = "role"): void
     {
+        if (is_string($player)) {
+            $player = Server::getInstance()->getPlayerExact($player) ?? $player;
+        }
         $target = RolePlayerManager::getInstance()->getPlayer($player);
-        $isPlayer = $player instanceof Player;
-
-        $isArray = is_array($data);
-        if ($target === null && !$isPlayer) {
+        if ($target === null) {
+            if ($type === "role") {
+                if (!($data instanceof Role)) return;
+                $data = $data->getId();
+            }
             DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
             return;
         }
-        if (is_string($player)) {
-            $player = Server::getInstance()->getPlayerExact($player) ?? $player;
-            $isPlayer = $player instanceof Player;
-        }
-        if (!$isPlayer) return;
+        if (!($player instanceof Player)) return;
         if ($player->isConnected()) {
             switch ($type) {
                 case "role":
@@ -403,7 +401,7 @@ class RoleManager
                 return;
             }
             $name = $args[0];
-            $image = IconForm::create($args[2]);
+            $image = $args[2];
             $default = $args[3];
             $priority = $args[5];
             $heritages = array_values(array_filter(explode(";", $args[7]), fn($heritage) => $heritage !== ""));

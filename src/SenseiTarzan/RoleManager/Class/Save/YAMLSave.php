@@ -25,7 +25,7 @@ class YAMLSave implements IDataSave
         return "Yaml System";
     }
 
-    public function loadDataPlayer(Player $player): void
+    public function loadDataPlayer(Player|string $player): void
     {
         if (!$this->config->exists($name = $player->getName(), true)) {
             RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer = new RolePlayer($name, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), nameRoleCustom: null));
