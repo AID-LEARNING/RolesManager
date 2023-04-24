@@ -25,7 +25,7 @@ class RoleCommands extends BaseCommand
 
     protected function prepare(): void
     {
-        $this->setPermission("command.role.permission");
+        $this->setPermission("rolemanager.command.role.permission");
         $this->registerSubCommand(new createRoleSubCommand($this->plugin, "create"));
         $this->registerSubCommand(new modifiedRoleSubCommand($this->plugin, "modify"));
         $this->registerSubCommand(new reloadRoleSubCommand($this->plugin, "reload"));
@@ -44,9 +44,9 @@ class RoleCommands extends BaseCommand
         $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::get_information_role(RolePlayerManager::getInstance()->getPlayer($sender->getName())->getRoleName())));
     }
 
-    public function getPermission()
+    public function getPermission(): string
     {
 
-        return "command.role.permission";
+        return "rolemanager.command.role.permission";
     }
 }

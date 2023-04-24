@@ -15,7 +15,7 @@ class createRoleSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.create-role.permission");
+        $this->setPermission("rolemanager.command.create-role.permission");
         $this->addConstraint(new InGameRequiredConstraint($this));
     }
 
@@ -30,6 +30,6 @@ class createRoleSubCommand extends BaseSubCommand
 
     public function getPermission(): string
     {
-        return "command.create-role.permission";
+        return "rolemanager.command.create-role.permission";
     }
 }

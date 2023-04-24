@@ -20,7 +20,7 @@ class setNameRoleCustomSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.nameCustom.permission");
+        $this->setPermission("rolemanager.command.nameCustom.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
         $this->registerArgument(1, new RawStringArgument(name: "nameCustom"));
 
@@ -47,6 +47,6 @@ class setNameRoleCustomSubCommand extends BaseSubCommand
     }
     public function getPermission(): string
     {
-        return "command.nameCustom.permission";
+        return "rolemanager.command.nameCustom.permission";
     }
 }

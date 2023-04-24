@@ -20,7 +20,7 @@ class setPrefixSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.prefix.permission");
+        $this->setPermission("rolemanager.command.prefix.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
         $this->registerArgument(1, new RawStringArgument(name: "prefix"));
 
@@ -46,6 +46,6 @@ class setPrefixSubCommand extends BaseSubCommand
 
     }
     public function getPermission(): string {
-        return "command.prefix.permission";
+        return "rolemanager.command.prefix.permission";
     }
 }

@@ -21,7 +21,7 @@ class reloadRoleSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.reload-role.permission");
+        $this->setPermission("rolemanager.command.reload-role.permission");
 
     }
 
@@ -36,6 +36,6 @@ class reloadRoleSubCommand extends BaseSubCommand
     }
     public  function getPermission(): string
     {
-       return "command.reload-role.permission";
+       return "rolemanager.command.reload-role.permission";
     }
 }

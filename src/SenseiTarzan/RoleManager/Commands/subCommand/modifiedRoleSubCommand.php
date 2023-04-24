@@ -16,7 +16,7 @@ class modifiedRoleSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.modified-role.permission");
+        $this->setPermission("rolemanager.command.modified-role.permission");
         $this->addConstraint(new InGameRequiredConstraint($this));
     }
 
@@ -31,6 +31,6 @@ class modifiedRoleSubCommand extends BaseSubCommand
 
     public function getPermission()
     {
-        return "command.modified-role.permission";
+        return "rolemanager.command.modified-role.permission";
     }
 }
