@@ -11,7 +11,7 @@ projects:
       phpstan: false
     libs:
       - src: AID-LEARNING/LanguageSystem/libLanguageSystem
-        version: ^1.0.3
+        version: ^1.0.4
       - src: AID-LEARNING/ExtraEvent/libEventAttribute
         version: ^1.0.2
         branch: pm5
@@ -23,7 +23,7 @@ projects:
       - src: AID-LEARNING/IconForm/libIconForm
         version: ^1.0.0
       - src: AID-LEARNING/libDataBase/libDataBase
-        version: ^1.0.0
+        version: ^1.0.2
       - src: Paroxity/Commando/Commando
         version: ^3.0.0
 
