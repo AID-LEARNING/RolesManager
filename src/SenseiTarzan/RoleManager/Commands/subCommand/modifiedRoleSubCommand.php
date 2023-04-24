@@ -28,4 +28,9 @@ class modifiedRoleSubCommand extends BaseSubCommand
         RoleManager::getInstance()->modifiedRoleSelectUI($sender);
 
     }
+
+    public function getPermission()
+    {
+        return "command.modified-role.permission";
+    }
 }

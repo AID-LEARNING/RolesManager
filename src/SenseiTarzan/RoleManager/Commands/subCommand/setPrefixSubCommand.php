@@ -45,4 +45,7 @@ class setPrefixSubCommand extends BaseSubCommand
         $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_prefix_sender($target, $prefix)));
 
     }
+    public function getPermission(): string {
+        return "command.prefix.permission";
+    }
 }

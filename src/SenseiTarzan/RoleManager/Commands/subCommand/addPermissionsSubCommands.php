@@ -37,4 +37,9 @@ class addPermissionsSubCommands extends BaseSubCommand
         RoleManager::getInstance()->addPermissionPlayer($target, $perm);
 
     }
+
+    public function getPermission(): string
+    {
+       return "command.add-permissions.permission";
+    }
 }

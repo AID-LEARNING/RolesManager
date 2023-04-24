@@ -37,4 +37,8 @@ class subPermissionsSubCommand extends BaseSubCommand
         RoleManager::getInstance()->removePermissionPlayer($target, $perm);
 
     }
+    public function getPermission(): string
+    {
+       return "command.sub-permissions.permission";
+    }
 }

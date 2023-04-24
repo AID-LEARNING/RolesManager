@@ -37,4 +37,8 @@ class setRoleSubCommand extends BaseSubCommand
         RoleManager::getInstance()->setRolePlayer($target, $role);
 
     }
+    public function getPermission(): string
+    {
+       return "command.set-role.permission";
+    }
 }

@@ -45,4 +45,8 @@ class setNameRoleCustomSubCommand extends BaseSubCommand
 
 
     }
+    public function getPermission(): string
+    {
+        return "command.nameCustom.permission";
+    }
 }

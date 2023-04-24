@@ -43,4 +43,10 @@ class RoleCommands extends BaseCommand
     {
         $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::get_information_role(RolePlayerManager::getInstance()->getPlayer($sender->getName())->getRoleName())));
     }
+
+    public function getPermission()
+    {
+
+        return "command.role.permission";
+    }
 }

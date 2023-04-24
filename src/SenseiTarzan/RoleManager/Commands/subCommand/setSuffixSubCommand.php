@@ -45,4 +45,9 @@ class setSuffixSubCommand extends BaseSubCommand
 
 
     }
+
+    public function getPermission(): string
+    {
+        return "command.suffix.permission";
+    }
 }
