@@ -20,7 +20,7 @@ class setPermissionsSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.set-permissions.permission");
+        $this->setPermission("rolemanager.command.set-permissions.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
         $this->registerArgument(1, new PermissionsArgument(name: "perm"));
 

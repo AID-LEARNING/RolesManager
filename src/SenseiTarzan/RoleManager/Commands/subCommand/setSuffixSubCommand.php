@@ -20,7 +20,7 @@ class setSuffixSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("command.suffix.permission");
+        $this->setPermission("rolemanager.command.suffix.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
         $this->registerArgument(1, new RawStringArgument(name: "suffix"));
 
