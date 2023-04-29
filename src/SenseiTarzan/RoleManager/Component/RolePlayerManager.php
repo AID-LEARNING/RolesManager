@@ -22,34 +22,30 @@ class RolePlayerManager
     private array $players = [];
 
 
-    public function loadPlayer(Player $player, RolePlayer $rolePlayer): void{
+    public function loadPlayer(Player $player, RolePlayer $rolePlayer): void
+    {
         $this->players[$rolePlayer->getId()] = $rolePlayer;
-        $this->loadPermissions($player,$rolePlayer);
+        $this->loadPermissions($player, $rolePlayer);
     }
 
-    public function getPlayer(Player|string $player): ?RolePlayer{
-        return $this->players[strtolower(is_string($player) ? $player : $player->getName())]?? null;
+    public function getPlayer(Player|string $player): ?RolePlayer
+    {
+        return $this->players[strtolower(is_string($player) ? $player : $player->getName())] ?? null;
     }
 
-    public function removePlayer(Player|string  $player): void{
+    public function removePlayer(Player|string $player): void
+    {
         unset($this->players[strtolower(is_string($player) ? $player : $player->getName())]);
     }
 
     public function loadPermissions(Player $player, RolePlayer $rolePlayer): void
     {
-        $roleManager = RoleManager::getInstance();
-        $perm_update = $rolePlayer->getPermissions();
-        $permsAll = $perm_update +  $rolePlayer->getRole()->getAllPermissions();
-        $perms = [];
-        foreach ($permsAll as $perm) {
-            $perms[$perm] = true;
-        }
-        $roleManager->addPermissions($player, $perms);
+        RoleManager::getInstance()->addPermissions($player, array_merge($rolePlayer->getPermissions(), $rolePlayer->getRole()->getPermissions(), $rolePlayer->getPermissionsSubRoles()));
     }
 
     public function reloadPermissions(): void
     {
-        foreach (Server::getInstance()->getOnlinePlayers() as $player){
+        foreach (Server::getInstance()->getOnlinePlayers() as $player) {
             if (!$player->isConnected()) return;
             $this->loadPermissions($player, $this->getPlayer($player));
         }

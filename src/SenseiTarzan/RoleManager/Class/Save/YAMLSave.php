@@ -25,23 +25,25 @@ class YAMLSave implements IDataSave
         return "Yaml System";
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function loadDataPlayer(Player|string $player): void
     {
         if (!$this->config->exists($name = $player->getName(), true)) {
-            RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer = new RolePlayer($name, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), nameRoleCustom: null));
+            RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer = new RolePlayer($name, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null));
             $this->config->set($rolePlayer->getId(), $rolePlayer->jsonSerialize());
             $this->config->save();
             return;
         }
         $infoPlayer = $this->config->get(strtolower($name));
-        RolePlayerManager::getInstance()->loadPlayer($player, new RolePlayer($name, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(),$infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []));
-
+        RolePlayerManager::getInstance()->loadPlayer($player, new RolePlayer($name, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(),$infoPlayer['subRoles'] ?? [],$infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []));
     }
 
 
     /**
      * @param string $id
-     * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions' | 'nameRoleCustom'
+     * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions' | 'nameRoleCustom' | 'SubRoles'
      * @param mixed $data
      * @return void
      * @throws \JsonException
@@ -55,7 +57,7 @@ class YAMLSave implements IDataSave
 
     /**
      * @param string $id
-     * @param string $type 'role' | 'addPermission' | 'removePermission' | 'setPermission'
+     * @param string $type 'role' | 'addPermission' | 'removePermission' | 'setPermission' | 'addSubRoles' | 'removeSubRoles' | 'setSubRoles'
      * @param mixed $data
      * @return void
      * @throws \JsonException
@@ -63,15 +65,16 @@ class YAMLSave implements IDataSave
     public function updateOffline(string $id, string $type, mixed $data): void
     {
         if (!$this->config->exists($id, true)){
-            $this->config->set(strtolower($id), (new RolePlayer($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), nameRoleCustom: null))->jsonSerialize());
+            $this->config->set(strtolower($id), (new RolePlayer($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null))->jsonSerialize());
         }
         $this->config->setNested($search = (strtolower($id) . "." . (match ($type) {
                 "addPermissions", "removePermissions", "setPermissions" => 'permissions',
+                "addSubRoles", "removeSubRoles", "setSubRoles" => 'subRoles',
                 default => $type
             })), match ($type) {
-            "addPermissions" => array_merge($this->config->getNested($search) ,(is_string($data) ? [$data] : $data)) ,
-            "removePermissions" => array_values(array_diff($this->config->getNested($search), (is_string($data) ? [$data] : $data))),
-            "setPermissions" => is_string($data) ? [$data] : $data,
+            "addPermissions", "addSubRoles" => array_merge($dataInSave = $this->config->getNested($search), array_filter((is_string($data) ? [$data] : $data), fn(string $value) => (($type !== "addSubRoles") || RoleManager::getInstance()->existRole($value)) && !in_array($value, $dataInSave))) ,
+            "removePermissions", "removeSubRoles" => array_values(array_diff($this->config->getNested($search), (is_string($data) ? [$data] : $data))),
+            "setPermissions", "setSubRoles" => is_string($data) ? [$data] : $data,
             default => $data
         });
         $this->config->save();

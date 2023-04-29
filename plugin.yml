@@ -38,3 +38,13 @@ permissions:
   rolemanager.command.reload-role.permission:
     description: "Allows to refresh the roles in the files"
     default: op
+  rolemanager.command.remove-sub-role.permission:
+    description: "Allows you to remove a sub-role from a player"
+    default: op
+  rolemanager.command.set-sub-role.permission:
+    description: "Allows you to set a sub-role to a player"
+    default: op
+  rolemanager.command.add-sub-role.permission:
+    description: "Allows you to add a sub-role to a player"
+    default: op
+

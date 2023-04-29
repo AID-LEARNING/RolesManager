@@ -58,4 +58,11 @@ class CustomKnownTranslationKeys
     const ERROR_SET_NAME_ROLE_CUSTOM_SENDER =  "Error.RolePlayer.nameCustom";
     const ERROR_SET_PREFIX_SENDER = "Error.RolePlayer.prefix";
     const ERROR_SET_SUFFIX_SENDER = "Error.RolePlayer.suffix";
+    const ADD_SUB_ROLES_TARGET = "Role.target.subRoles.add";
+    const REMOVE_SUB_ROLES_TARGET = "Role.target.subRoles.remove";
+    const SET_SUB_ROLES_TARGET = "Role.target.subRoles.set";
+    const ADD_SUB_ROLES_SENDER = "Role.sender.subRoles.add";
+    const REMOVE_SUB_ROLES_SENDER = "Role.sender.subRoles.remove";
+    const SET_SUB_ROLES_SENDER = "Role.sender.subRoles.set";
+    const ROLE_NOT_FOUND = "Error.Role.notFound";
 }

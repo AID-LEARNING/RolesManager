@@ -2,17 +2,17 @@
 
 namespace SenseiTarzan\RoleManager\Commands\subCommand;
 
+use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
-use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 
-class setRoleSubCommand extends BaseSubCommand
+class removesubRoleSubCommand extends BaseSubCommand
 {
 
 
@@ -21,7 +21,7 @@ class setRoleSubCommand extends BaseSubCommand
      */
     protected function prepare(): void
     {
-        $this->setPermission("rolemanager.command.set-role.permission");
+        $this->setPermission("rolemanager.command.remove-sub-role.permission");
         $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
         $this->registerArgument(1, new RoleArgument(name: "name"));
 
@@ -38,12 +38,12 @@ class setRoleSubCommand extends BaseSubCommand
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
             return;
         }
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_role_sender($target,$role)));
-        RoleManager::getInstance()->setRolePlayer($target, $role);
+        RoleManager::getInstance()->removeSubRolesPlayer($target, $role);
+        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::remove_sub_roles_sender($target, $role)));
 
     }
     public function getPermission(): string
     {
-       return "rolemanager.command.set-role.permission";
+       return "rolemanager.command.remove-sub-role.permission";
     }
 }

@@ -15,7 +15,18 @@ class RolePlayer implements \JsonSerializable
 
     private string $id;
 
-    public function __construct(private string $name, private string $prefix, private string $suffix, private string $role,  private string | null $nameRoleCustom, private array $permissions = [])
+    /**
+     * RolePlayer constructor.
+     * @param string $name
+     * @param string $prefix
+     * @param string $suffix
+     * @param string $role
+     * @param string[] $subRoles
+     * @param string|null $nameRoleCustom
+     * @param array $permissions
+     * @throws \JsonException
+     */
+    public function __construct(private string $name, private string $prefix, private string $suffix, private string $role, private array $subRoles, private string|null $nameRoleCustom, private array $permissions = [])
     {
         $this->id = strtolower($this->name);
     }
@@ -56,6 +67,7 @@ class RolePlayer implements \JsonSerializable
         DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $event->getNewPrefix());
         return true;
     }
+
     /**
      * @return string
      */
@@ -78,7 +90,6 @@ class RolePlayer implements \JsonSerializable
     }
 
 
-
     /**
      * @return Role
      */
@@ -88,12 +99,106 @@ class RolePlayer implements \JsonSerializable
     }
 
     /**
-     * @param string $role
+     * @return array
      */
-    public function setRole(string $role): void
+    public function getSubRoles(): array
+    {
+        return $this->subRoles;
+    }
+
+    public function hasSubRole(string $role): bool
+    {
+        return in_array($role, $this->subRoles, true) || $this->role === $role || in_array($role, $this->getRole()->getAllHeritages(), true);
+    }
+
+    /**
+     * @param array $roles
+     * @return void
+     */
+    public function filterNoHasSubRoles(array &$roles): void
+    {
+        foreach ($roles as $index => $role) {
+            if ($role instanceof Role) {
+                if (!$this->hasSubRole($role->getId())) continue;
+                unset($roles[$index]);
+                continue;
+            }
+            if (!RoleManager::getInstance()->existRole($role)) {
+
+                unset($roles[$index]);
+                continue;
+            }
+
+            if (!$this->hasSubRole($role)) continue;
+            unset($roles[$index]);
+        }
+    }
+
+    /**
+     * @param array|string|Role $roles
+     * @return void
+     */
+    public function addSubRole(array|string|Role &$roles): void
+    {
+        if (is_array($roles)) {
+            $this->filterNoHasSubRoles($roles);
+        } else if (is_string($roles)) {
+            if (!RoleManager::getInstance()->existRole($roles)) return;
+            if ($this->hasSubRole($roles)) return;
+            $roles = [$roles];
+        } else {
+            if (!$this->hasSubRole($roles->getId())) return;
+            $roles = [$roles->getId()];
+        }
+        $this->setSubRoles(array_merge($this->subRoles, $roles));
+    }
+
+    /**
+     * @param array|string|Role $roles
+     * @return void
+     */
+    public function removeSubRole(array|string|Role &$roles): void
+    {
+        if (is_array($roles)) {
+            $this->filterNoHasSubRoles($roles);
+        } else if (is_string($roles)){
+            if (!RoleManager::getInstance()->existRole($roles)) return;
+            if ($this->hasSubRole($roles)) return;
+            $roles = [$roles];
+        } else {
+            if (!$this->hasSubRole($roles->getId())) return;
+            $roles = [$roles->getId()];
+        }
+        $this->setSubRoles(array_diff($this->subRoles, $roles));
+    }
+
+    /**
+     * @param array|string|Role $roles
+     * @return void
+     */
+    public function setSubRoles(array|string|Role $roles): void
+    {
+        if (is_string($roles)) {
+            $roles = [$roles];
+        } else if ($roles instanceof Role) {
+            $roles = [$roles->getId()];
+        }
+        $this->subRoles = array_values($roles);
+        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "subRoles", $this->subRoles);
+    }
+
+    public function clearSubRoles(): void
+    {
+        $this->setSubRoles([]);
+    }
+
+    /**
+     * @param string|Role $role
+     */
+    public function setRole(string|Role $role): void
     {
 
-        $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), RoleManager::getInstance()->getRole($role));
+        $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), $role instanceof Role ? $role : RoleManager::getInstance()->getRole($role));
         $event->call();
         if ($event->isCancelled()) return;
         $this->role = $event->getNewRole()->getId();
@@ -107,8 +212,10 @@ class RolePlayer implements \JsonSerializable
     {
         return $this->nameRoleCustom;
     }
+
     /**
      * @param string $role
+     * @return bool
      */
     public function setRoleNameCustom(string $role): bool
     {
@@ -121,8 +228,9 @@ class RolePlayer implements \JsonSerializable
         return true;
     }
 
-    public function getRoleName(): string{
-        return ($this->getRole()->isChangeName() ? $this->getNameRoleCustom()  : null) ?? $this->getRole()->getName();
+    public function getRoleName(): string
+    {
+        return ($this->getRole()->isChangeName() ? $this->getNameRoleCustom() : null) ?? $this->getRole()->getName();
     }
 
     /**
@@ -133,12 +241,24 @@ class RolePlayer implements \JsonSerializable
         return $this->permissions;
     }
 
+    public function getPermissionsSubRoles(): array
+    {
+        if (empty($this->getSubRoles())) return [];
+        $permissions = [];
+        $roleManager = RoleManager::getInstance();
+        foreach ($this->getSubRoles() as $role) {
+            if (!$roleManager->existRole($role)) continue;
+            $permissions = array_merge($permissions, $roleManager->getRole($role)->getPermissions());
+        }
+        return $permissions;
+    }
+
     /**
      * @param array|string $permissions
      */
     public function setPermissions(array|string $permissions): void
     {
-        if (is_string($permissions)){
+        if (is_string($permissions)) {
             $permissions = [$permissions];
         }
         $this->permissions = array_values($permissions);
@@ -146,40 +266,30 @@ class RolePlayer implements \JsonSerializable
     }
 
     /**
-     * @param string $permission
-     * @return void
-     */
-    public function addPermissionRaw(string $permission): void{
-        if (in_array($permission, $this->permissions, true)) return;
-        $this->permissions[] = $permission;
-    }
-
-    /**
      * @param array|string $permissions
      * @return void
      */
-    public function addPermissions(array|string $permissions): void{
+    public function addPermissions(array|string $permissions): void
+    {
         if (is_array($permissions)) {
-            foreach ($permissions as $permission) {
-                $this->addPermissionRaw($permission);
-            }
-        }else{
-            $this->addPermissionRaw($permissions);
+            $this->setPermissions(array_merge($this->permissions, array_values($permissions)));
+            return;
         }
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "permissions", $this->getPermissions());
+        $this->setPermissions(array_merge($this->permissions, [$permissions]));
     }
 
     /**
      * @param array|string $permissions
      * @return void
      */
-    public function removePermissions(array|string $permissions): void{
+    public function removePermissions(array|string $permissions): void
+    {
         $this->setPermissions(array_diff($this->permissions, is_array($permissions) ? $permissions : [$permissions]));
     }
 
 
     public function jsonSerialize(): array
     {
-        return ["prefix" => $this->getPrefix(), "suffix" => $this->getSuffix(), "role" => $this->getRole()->getId(), "nameRoleCustom" => $this->getNameRoleCustom(), "permissions" => $this->getPermissions()];
+        return ["prefix" => $this->getPrefix(), "suffix" => $this->getSuffix(), "role" => $this->getRole()->getId(), "subRoles" => $this->getSubRoles(), "nameRoleCustom" => $this->getNameRoleCustom(), "permissions" => $this->getPermissions()];
     }
 }

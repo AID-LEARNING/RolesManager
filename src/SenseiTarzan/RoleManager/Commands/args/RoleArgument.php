@@ -21,9 +21,9 @@ class RoleArgument extends StringEnumArgument
         return array_keys(self::$VALUES);
     }
 
-    public function parse(string $argument, CommandSender $sender): Role
+    public function parse(string $argument, CommandSender $sender): ?Role
     {
-        return RoleManager::getInstance()->getRole($this->getValue($argument));
+        return RoleManager::getInstance()->getRoleNullable($this->getValue($argument));
     }
 
     public function getTypeName(): string

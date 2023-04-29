@@ -163,6 +163,47 @@ class RoleManager
         return $this->roles[Utils::roleStringToId($role)] ?? $this->getDefaultRole();
     }
 
+    public function existRole(string $role): bool
+    {
+        return isset($this->roles[Utils::roleStringToId($role)]);
+    }
+
+    public function getSubRolesPlayer(Player $player): array
+    {
+
+        return $player->isConnected() ? RolePlayerManager::getInstance()->getPlayer($player)->getSubRoles() : [];
+    }
+
+    /**
+     * @param Player|string $player
+     * @param array|string|Role|Role[] $roles
+     * @return void
+     */
+    public function setSubRolesPlayer(Player|string $player, array|string|Role $roles): void
+    {
+        $this->updateDataPlayer($player, $roles, 'setSubRoles');
+    }
+
+    /**
+     * @param Player|string $player
+     * @param array|string|Role|Role[] $roles
+     * @return void
+     */
+    public function addSubRolesPlayer(Player|string $player, array|string|Role $roles): void
+    {
+        $this->updateDataPlayer($player, $roles, 'addSubRoles');
+    }
+
+    /**
+     * @param Player|string $player
+     * @param array|string|Role|Role[] $roles
+     * @return void
+     */
+    public function removeSubRolesPlayer(Player|string $player, array|string|Role $roles): void
+    {
+        $this->updateDataPlayer($player, $roles, 'removeSubRoles');
+    }
+
     /**
      * @param string $role id|name
      * @return Role|null
@@ -207,6 +248,8 @@ class RoleManager
             $attache->setPermissions($permissions);
         }
     }
+
+
 
     /**
      * @param string $role
@@ -342,7 +385,7 @@ class RoleManager
      * @param array|string $permission
      */
     public function removePermissionPlayer(Player|string $player, array|string $permission): void
-    {;
+    {
         $this->updateDataPlayer($player, $permission, "removePermissions");
     }
 
@@ -359,9 +402,15 @@ class RoleManager
         }
         $target = RolePlayerManager::getInstance()->getPlayer($player);
         if ($target === null) {
-            if ($type === "role") {
-                if (!($data instanceof Role)) return;
+            if ($data instanceof Role) {
                 $data = $data->getId();
+            }
+            if (is_array($data)) {
+                foreach ($data as $index => $datum) {
+                    if ($datum instanceof Role) {
+                        $data[$index] = $datum->getId();
+                    }
+                }
             }
             DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
             return;
@@ -371,7 +420,7 @@ class RoleManager
             switch ($type) {
                 case "role":
                     if (!($data instanceof Role)) return;
-                    $target->setRole($data->getId());
+                    $target->setRole($data);
                     $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_role_target($data)));
                     break;
                 case "addPermissions":
@@ -388,6 +437,19 @@ class RoleManager
                     $target->setPermissions($data);
                     $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_permissions_target($data)));
                     break;
+                case "addSubRoles":
+                    $target->addSubRole($data);
+                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::add_sub_roles_target($data)));
+                    break;
+                case "removeSubRoles":
+                    $target->removeSubRole($data);
+                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_sub_roles_target($data)));
+                    break;
+                case "setSubRoles":
+                    $target->setSubRoles($data);
+                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_sub_roles_target($data)));
+                    break;
+
             }
 
             RolePlayerManager::getInstance()->loadPermissions($player, $target);
