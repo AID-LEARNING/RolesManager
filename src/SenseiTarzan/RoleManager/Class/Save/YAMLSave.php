@@ -37,7 +37,7 @@ class YAMLSave implements IDataSave
             return;
         }
         $infoPlayer = $this->config->get(strtolower($name));
-        RolePlayerManager::getInstance()->loadPlayer($player, new RolePlayer($name, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(),$infoPlayer['subRoles'] ?? [],$infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []));
+        RolePlayerManager::getInstance()->loadPlayer($player, new RolePlayer($name, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(),$infoPlayer['subRoles'] ?? [],$infoPlayer['nameRoleCustom'] ?? null, array_values($infoPlayer['permissions'] ?? [])));
     }
 
 
@@ -45,13 +45,14 @@ class YAMLSave implements IDataSave
      * @param string $id
      * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions' | 'nameRoleCustom' | 'SubRoles'
      * @param mixed $data
-     * @return void
+     * @return mixed
      * @throws \JsonException
      */
-    public function updateOnline(string $id, string $type, mixed $data): void
+    public function updateOnline(string $id, string $type, mixed $data): bool
     {
         $this->config->setNested($id. ".$type", $data);
         $this->config->save();
+        return false;
     }
 
 
@@ -59,10 +60,10 @@ class YAMLSave implements IDataSave
      * @param string $id
      * @param string $type 'role' | 'addPermission' | 'removePermission' | 'setPermission' | 'addSubRoles' | 'removeSubRoles' | 'setSubRoles'
      * @param mixed $data
-     * @return void
+     * @return mixed
      * @throws \JsonException
      */
-    public function updateOffline(string $id, string $type, mixed $data): void
+    public function updateOffline(string $id, string $type, mixed $data): bool
     {
         if (!$this->config->exists($id, true)){
             $this->config->set(strtolower($id), (new RolePlayer($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null))->jsonSerialize());
@@ -78,5 +79,6 @@ class YAMLSave implements IDataSave
             default => $data
         });
         $this->config->save();
+        return false;
     }
 }

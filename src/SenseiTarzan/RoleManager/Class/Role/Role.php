@@ -127,7 +127,7 @@ class Role implements  \JsonSerializable
         $this->config->save();
     }
     public function addHeritages(array|string $heritages): void{
-        $this->setHeritages($this->heritages + (is_array($heritages) ? $heritages: [$heritages]));
+        $this->setHeritages(array_merge($this->heritages, (is_array($heritages) ? $heritages: [$heritages])));
     }
     public function removeHeritages(array|string $heritages): void{
         $this->setHeritages(array_diff($this->heritages, (is_array($heritages) ? $heritages: [$heritages])));
@@ -138,7 +138,7 @@ class Role implements  \JsonSerializable
     {
         $heritages = [];
         foreach ($this->heritages as $heritage){
-            $heritages += RoleManager::getInstance()->getHeritages($heritage);
+            $heritages = array_merge($heritages, RoleManager::getInstance()->getHeritages($heritage));
 
         }
         return $heritages;
@@ -172,14 +172,14 @@ class Role implements  \JsonSerializable
         $permissions = [];
         foreach ($this->heritages as $heritage){
             if (is_array($permissionsRole =RoleManager::getInstance()->getPermissionRole($heritage))){
-                $permissions += $permissionsRole;
+                $permissions[] = $permissionsRole;
             }
         }
         return $permissions;
     }
 
     public function getAllPermissions(): array{
-        return $this->permissions + $this->getHeritagesPermissions();
+        return array_merge($this->permissions, $this->getHeritagesPermissions());
     }
 
     /**

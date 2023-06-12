@@ -45,10 +45,10 @@ class JSONSave implements IDataSave
      * @param string $id
      * @param string $type 'role' | 'suffix' | 'prefix' | 'permissions' | 'nameRoleCustom' | 'SubRoles'
      * @param mixed $data
-     * @return void
+     * @return mixed
      * @throws JsonException
      */
-    public function updateOnline(string $id, string $type, mixed $data): void
+    public function updateOnline(string $id, string $type, mixed $data): mixed
     {
         $this->config->setNested($id. ".$type", $data);
         $this->config->save();
@@ -59,10 +59,10 @@ class JSONSave implements IDataSave
      * @param string $id
      * @param string $type 'role' | 'addPermission' | 'removePermission' | 'setPermission' | 'addSubRole' | 'removeSubRole' | 'setSubRoles'
      * @param mixed $data
-     * @return void
+     * @return mixed
      * @throws JsonException
      */
-    public function updateOffline(string $id, string $type, mixed $data): void
+    public function updateOffline(string $id, string $type, mixed $data): mixed
     {
         if (!$this->config->exists($id, true)) {
             $this->config->set(strtolower($id), (new RolePlayer($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null))->jsonSerialize());

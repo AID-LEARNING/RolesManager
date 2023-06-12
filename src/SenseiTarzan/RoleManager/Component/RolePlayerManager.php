@@ -11,6 +11,7 @@ use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\ExtraEvent\Class\EventAttribute;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Main;
 
 class RolePlayerManager
 {
@@ -25,7 +26,8 @@ class RolePlayerManager
     public function loadPlayer(Player $player, RolePlayer $rolePlayer): void
     {
         $this->players[$rolePlayer->getId()] = $rolePlayer;
-        $this->loadPermissions($player, $rolePlayer);
+        $rolePlayer->setAttachment($player->addAttachment(Main::getInstance()));
+        $this->loadPermissions($rolePlayer);
     }
 
     public function getPlayer(Player|string $player): ?RolePlayer
@@ -38,16 +40,20 @@ class RolePlayerManager
         unset($this->players[strtolower(is_string($player) ? $player : $player->getName())]);
     }
 
-    public function loadPermissions(Player $player, RolePlayer $rolePlayer): void
+    public function loadPermissions(RolePlayer $rolePlayer): void
     {
-        RoleManager::getInstance()->addPermissions($player, array_merge($rolePlayer->getPermissions(), $rolePlayer->getRole()->getPermissions(), $rolePlayer->getPermissionsSubRoles()));
+        RoleManager::getInstance()->addPermissions($rolePlayer, self::combinePermissionsAndSetTrue(array_merge($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions(), $rolePlayer->getPermissionsSubRoles())));
+    }
+
+
+    private function combinePermissionsAndSetTrue(...$perms): array {
+        return array_fill_keys(array_merge(...$perms), true);
     }
 
     public function reloadPermissions(): void
     {
-        foreach (Server::getInstance()->getOnlinePlayers() as $player) {
-            if (!$player->isConnected()) return;
-            $this->loadPermissions($player, $this->getPlayer($player));
+        foreach ($this->players as $rolePlayer) {
+            $this->loadPermissions($rolePlayer);
         }
     }
 

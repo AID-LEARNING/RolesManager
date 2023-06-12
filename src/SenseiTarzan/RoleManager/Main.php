@@ -3,6 +3,7 @@ namespace SenseiTarzan\RoleManager;
 
 use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\ExtraEvent\Component\EventLoader;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
@@ -19,8 +20,10 @@ use Symfony\Component\Filesystem\Path;
 class Main extends PluginBase
 {
 
+    use SingletonTrait;
     public function onLoad(): void
     {
+        self::setInstance($this);
         if (!file_exists(Path::join($this->getDataFolder(), "config.yml"))) {
             foreach (PathScanner::scanDirectoryGenerator($search = Path::join(dirname(__DIR__,3) , "resources")) as $file){
                 @$this->saveResource(str_replace($search, "", $file));

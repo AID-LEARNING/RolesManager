@@ -23,7 +23,7 @@ projects:
       - src: AID-LEARNING/IconForm/libIconForm
         version: ^1.0.0
       - src: AID-LEARNING/libDataBase/libDataBase
-        version: ^1.0.2
+        version: ^1.0.3
       - src: AID-LEARNING/Commando/Commando
         version: ^3.0.0
         branch: pm5

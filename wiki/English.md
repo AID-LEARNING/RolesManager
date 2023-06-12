@@ -140,7 +140,7 @@ class JSONSeparedSave implements IDataSave
          "addPermission", "removePermission", "setPermission" => 'permissions',
          default => $type
         }, match ($type) {
-            "addPermission" => $this->config->get($search) + (is_string($data) ? [$data] : $data),
+            "addPermission" => array_merge($this->config->get($search),  (is_string($data) ? [$data] : $data)),
             "removePermission" => array_diff($this->config->get($search), (is_string($data) ? [$data] : $data)),
             "setPermission" => is_string($data) ? [$data] : $data,
             default => $data

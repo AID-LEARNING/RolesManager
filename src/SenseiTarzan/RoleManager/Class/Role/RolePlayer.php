@@ -2,6 +2,8 @@
 
 namespace SenseiTarzan\RoleManager\Class\Role;
 
+use Error;
+use pocketmine\permission\PermissionAttachment;
 use pocketmine\Server;
 use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\RoleManager\Component\RoleManager;
@@ -14,6 +16,7 @@ class RolePlayer implements \JsonSerializable
 {
 
     private string $id;
+    private ?PermissionAttachment $attachment = null;
 
     /**
      * RolePlayer constructor.
@@ -291,5 +294,15 @@ class RolePlayer implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return ["prefix" => $this->getPrefix(), "suffix" => $this->getSuffix(), "role" => $this->getRole()->getId(), "subRoles" => $this->getSubRoles(), "nameRoleCustom" => $this->getNameRoleCustom(), "permissions" => $this->getPermissions()];
+    }
+
+    public function setAttachment(PermissionAttachment $addAttachment): void
+    {
+        $this->attachment = $addAttachment;
+    }
+
+    public function getAttachment(): PermissionAttachment
+    {
+        return $this->attachment ?? throw new Error("Attachment not found");
     }
 }

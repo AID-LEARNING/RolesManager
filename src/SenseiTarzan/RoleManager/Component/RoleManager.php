@@ -18,6 +18,7 @@ use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\Utils;
@@ -38,6 +39,7 @@ class RoleManager
     private Server $server;
     private Config $config;
     private Role $defaultRole;
+
 
     public function __construct(PluginBase $pl)
     {
@@ -240,13 +242,11 @@ class RoleManager
         return $this->getRole($role)->getAllHeritages();
     }
 
-    public function addPermissions(Player $player, array $permissions): void
+    public function addPermissions(RolePlayer $rolePlayer, array $permissions): void
     {
-        if ($player->isConnected()) {
-            $attache = $player->addAttachment($this->plugin);
-            $attache->clearPermissions();
-            $attache->setPermissions($permissions);
-        }
+        $attachment = $rolePlayer->getAttachment();
+        $attachment?->clearPermissions();
+        $attachment?->setPermissions($permissions);
     }
 
 
@@ -452,7 +452,7 @@ class RoleManager
 
             }
 
-            RolePlayerManager::getInstance()->loadPermissions($player, $target);
+            RolePlayerManager::getInstance()->loadPermissions($target);
         }
     }
 
