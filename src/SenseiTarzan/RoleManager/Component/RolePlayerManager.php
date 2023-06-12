@@ -25,8 +25,8 @@ class RolePlayerManager
 
     public function loadPlayer(Player $player, RolePlayer $rolePlayer): void
     {
-        $this->players[$rolePlayer->getId()] = $rolePlayer;
         $rolePlayer->setAttachment($player->addAttachment(Main::getInstance()));
+        $this->players[$rolePlayer->getId()] = $rolePlayer;
         $this->loadPermissions($rolePlayer);
     }
 
