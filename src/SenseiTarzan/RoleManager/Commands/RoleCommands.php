@@ -18,7 +18,7 @@ use SenseiTarzan\RoleManager\Commands\subCommand\setRoleSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\addPermissionsSubCommands;
 use SenseiTarzan\RoleManager\Commands\subCommand\setsubRoleSubCommand;
 use SenseiTarzan\RoleManager\Commands\subCommand\setSuffixSubCommand;
-use SenseiTarzan\RoleManager\Commands\subCommand\subPermissionsSubCommand;
+use SenseiTarzan\RoleManager\Commands\subCommand\removePermissionsSubCommand;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 
@@ -39,7 +39,7 @@ class RoleCommands extends BaseCommand
         $this->registerSubCommand(new setSuffixSubCommand($this->plugin, "setsuffix"));
         $this->registerSubCommand(new setPermissionsSubCommand($this->plugin, "setperm"));
         $this->registerSubCommand(new addPermissionsSubCommands($this->plugin, "addperm"));
-        $this->registerSubCommand(new subPermissionsSubCommand($this->plugin, "subperm"));
+        $this->registerSubCommand(new removePermissionsSubCommand($this->plugin, "subperm"));
         $this->registerSubCommand(new addsubRoleSubCommand($this->plugin, "addsubrole"));
         $this->registerSubCommand(new removesubRoleSubCommand($this->plugin, "removesubrole"));
         $this->registerSubCommand(new setsubRoleSubCommand($this->plugin, "setsubrole"));

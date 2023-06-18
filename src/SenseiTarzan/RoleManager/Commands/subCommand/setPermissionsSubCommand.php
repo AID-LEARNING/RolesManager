@@ -34,7 +34,10 @@ class setPermissionsSubCommand extends BaseSubCommand
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-        $perm =  explode(";", $args['perm']);
+        $perm = explode(";", $args['perm'] ?? "");
+        if (count($perm) === 0) {
+            return;
+        }
         Await::g2c(RoleManager::getInstance()->setPermissionPlayer($target, $perm), function (ResultUpdate $resultUpdate) use ($sender, $target) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_permissions_sender($target, $perm = $resultUpdate->data)));
             if ($resultUpdate->online) {

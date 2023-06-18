@@ -14,7 +14,7 @@ use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SOFe\AwaitGenerator\Await;
 
-class subPermissionsSubCommand extends BaseSubCommand
+class removePermissionsSubCommand extends BaseSubCommand
 {
 
 
@@ -38,7 +38,10 @@ class subPermissionsSubCommand extends BaseSubCommand
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-        $perm = explode(";", $args['perm']);
+        $perm = explode(";", $args['perm']);$perm = explode(";", $args['perm'] ?? "");
+        if (count($perm) === 0) {
+            return;
+        }
         Await::g2c(RoleManager::getInstance()->removePermissionPlayer($target, $perm), function (ResultUpdate $resultUpdate) use ($sender, $target, $perm) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::remove_permissions_sender($target, $perm)));
             if ($resultUpdate->online) {
