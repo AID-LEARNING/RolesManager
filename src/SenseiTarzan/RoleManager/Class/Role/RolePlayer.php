@@ -3,16 +3,21 @@
 namespace SenseiTarzan\RoleManager\Class\Role;
 
 use Error;
+use Generator;
+use JsonSerializable;
 use pocketmine\permission\PermissionAttachment;
 use pocketmine\Server;
 use SenseiTarzan\DataBase\Component\DataManager;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
+use SenseiTarzan\RoleManager\Class\Exception\RoleNoNameCustomException;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Event\EventChangeNameCustom;
 use SenseiTarzan\RoleManager\Event\EventChangePrefix;
 use SenseiTarzan\RoleManager\Event\EventChangeRole;
 use SenseiTarzan\RoleManager\Event\EventChangeSuffix;
+use SOFe\AwaitGenerator\Await;
 
-class RolePlayer implements \JsonSerializable
+class RolePlayer implements JsonSerializable
 {
 
     private string $id;
@@ -61,14 +66,22 @@ class RolePlayer implements \JsonSerializable
     /**
      * @param string $prefix
      */
-    public function setPrefix(string $prefix): bool
+    public function setPrefix(string $prefix): Generator
     {
-        $event = new EventChangePrefix(Server::getInstance()->getPlayerExact($this->getName()), $this->getPrefix(), $prefix);
-        $event->call();
-        if ($event->isCancelled()) return false;
-        $this->prefix = $event->getNewPrefix();
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $event->getNewPrefix());
-        return true;
+        return Await::promise(function ($resolve, $reject) use ($prefix) {
+            $event = new EventChangePrefix(Server::getInstance()->getPlayerExact($this->getName()), $this->getPrefix(), $prefix);
+            $event->call();
+            if ($event->isCancelled()) {
+                $reject(new CancelEventException());
+                return;
+            }
+            Await::f2c(function () use ($event): Generator {
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $prefix = $event->getNewPrefix());
+                $this->prefix = $prefix;
+                return $prefix;
+            }, $resolve, $reject);
+        });
+
     }
 
     /**
@@ -82,14 +95,23 @@ class RolePlayer implements \JsonSerializable
     /**
      * @param string $suffix
      */
-    public function setSuffix(string $suffix): bool
+    public function setSuffix(string $suffix): Generator
     {
-        $event = new EventChangeSuffix(Server::getInstance()->getPlayerExact($this->getName()), $this->getSuffix(), $suffix);
-        $event->call();
-        if ($event->isCancelled()) return false;
-        $this->suffix = $event->getNewSuffix();
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $event->getNewSuffix());
-        return true;
+
+        return Await::promise(function ($resolve, $reject) use ($suffix) {
+
+            $event = new EventChangeSuffix(Server::getInstance()->getPlayerExact($this->getName()), $this->getSuffix(), $suffix);
+            $event->call();
+            if ($event->isCancelled()){
+                $reject(new CancelEventException());
+                return;
+            }
+            Await::f2c(function () use($event) : Generator{
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $suffix = $event->getNewSuffix());
+                $this->suffix = $suffix;
+                return $suffix;
+            }, $resolve, $reject);
+        });
     }
 
 
@@ -118,76 +140,62 @@ class RolePlayer implements \JsonSerializable
      * @param array $roles
      * @return void
      */
-    public function filterNoHasSubRoles(array &$roles): void
+    public function filterNoHasSubRoles(array $roles): array
     {
-        foreach ($roles as $index => $role) {
+        $list = [];
+        foreach ($roles as $role) {
             if ($role instanceof Role) {
-                if (!$this->hasSubRole($role->getId())) continue;
-                unset($roles[$index]);
+                if (!$this->hasSubRole($role->getId())){
+                    $list[] = $role->getId();
+                }
                 continue;
             }
-            if (!RoleManager::getInstance()->existRole($role)) {
-
-                unset($roles[$index]);
-                continue;
+            if (!$this->hasSubRole($role)){
+                $list[] = $role;
             }
 
-            if (!$this->hasSubRole($role)) continue;
-            unset($roles[$index]);
         }
+        return $list;
     }
 
     /**
      * @param array|string|Role $roles
-     * @return void
+     * @return Generator<string>
      */
-    public function addSubRole(array|string|Role &$roles): void
+    public function addSubRole(array|string|Role $roles): Generator
     {
-        if (is_array($roles)) {
-            $this->filterNoHasSubRoles($roles);
-        } else if (is_string($roles)) {
-            if (!RoleManager::getInstance()->existRole($roles)) return;
-            if ($this->hasSubRole($roles)) return;
-            $roles = [$roles];
-        } else {
-            if (!$this->hasSubRole($roles->getId())) return;
-            $roles = [$roles->getId()];
-        }
-        $this->setSubRoles(array_merge($this->subRoles, $roles));
+        return $this->setSubRoles(array_merge($this->subRoles, $this->filterNoHasSubRoles(is_array($roles) ? $roles : [$roles])));
     }
 
     /**
      * @param array|string|Role $roles
-     * @return void
+     * @return Generator<string[]>
      */
-    public function removeSubRole(array|string|Role &$roles): void
+    public function removeSubRole(array|string|Role $roles): Generator
     {
-        if (is_array($roles)) {
-            $this->filterNoHasSubRoles($roles);
-        } else if (is_string($roles)){
-            if (!RoleManager::getInstance()->existRole($roles)) return;
-            if ($this->hasSubRole($roles)) return;
-            $roles = [$roles];
-        } else {
-            if (!$this->hasSubRole($roles->getId())) return;
-            $roles = [$roles->getId()];
-        }
-        $this->setSubRoles(array_diff($this->subRoles, $roles));
+        return $this->setSubRoles(array_diff($this->subRoles, $this->filterNoHasSubRoles(is_array($roles) ? $roles : [$roles])));
     }
 
     /**
      * @param array|string|Role $roles
-     * @return void
+     * @return Generator
      */
-    public function setSubRoles(array|string|Role $roles): void
+    public function setSubRoles(array|string|Role $roles): Generator
     {
-        if (is_string($roles)) {
-            $roles = [$roles];
-        } else if ($roles instanceof Role) {
-            $roles = [$roles->getId()];
-        }
-        $this->subRoles = array_values($roles);
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "subRoles", $this->subRoles);
+        return Await::promise(function ($resolve, $reject) use ($roles) {
+            if (is_string($roles)) {
+                $roles = [$roles];
+            } else if ($roles instanceof Role) {
+                $roles = [$roles->getId()];
+            }
+            $roles = array_values($roles);
+            Await::f2c(function () use ($roles): Generator {
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "subRoles", $roles);
+                $this->subRoles = $roles;
+                return $roles;
+            }, $resolve, $reject);
+        });
+
     }
 
     public function clearSubRoles(): void
@@ -197,15 +205,25 @@ class RolePlayer implements \JsonSerializable
 
     /**
      * @param string|Role $role
+     * @return Generator<Role>
+     * @throws CancelEventException
      */
-    public function setRole(string|Role $role): void
+    public function setRole(string|Role $role): Generator
     {
+        return Await::promise(function ($resolve, $reject) use ($role) {
+            $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), $role instanceof Role ? $role : RoleManager::getInstance()->getRole($role));
+            $event->call();
+            if ($event->isCancelled()) {
+                $reject(new CancelEventException());
+                return;
+            }
+            Await::f2c(function () use ($event, $role): Generator {
 
-        $event = new EventChangeRole(Server::getInstance()->getPlayerExact($this->getName()), $this->getRole(), $role instanceof Role ? $role : RoleManager::getInstance()->getRole($role));
-        $event->call();
-        if ($event->isCancelled()) return;
-        $this->role = $event->getNewRole()->getId();
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", $event->getNewRole()->getId());
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", ($id = ($role = $event->getNewRole())->getId()));
+                $this->role = $id;
+                return $role;
+            }, $resolve, $reject);
+        });
     }
 
     /**
@@ -218,17 +236,29 @@ class RolePlayer implements \JsonSerializable
 
     /**
      * @param string $role
-     * @return bool
+     * @return Generator<string>
+     * @throws CancelEventException
      */
-    public function setRoleNameCustom(string $role): bool
+    public function setRoleNameCustom(string $role): Generator
     {
-        if (!$this->getRole()->isChangeName()) return false;
-        $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getNameRoleCustom(), $role);
-        $event->call();
-        if ($event->isCancelled()) return false;
-        $this->nameRoleCustom = $event->getNewNameCustom();
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $event->getNewNameCustom());
-        return true;
+
+        return Await::promise(function ($resolve, $reject) use ($role) {
+            if (!$this->getRole()->isChangeName()) {
+                $reject(new RoleNoNameCustomException());
+                return;
+            }
+            $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getNameRoleCustom(), $role);
+            $event->call();
+            if ($event->isCancelled()) {
+                $reject(new CancelEventException());
+                return;
+            }
+            Await::f2c(function () use ($event, $role): Generator {
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $newName = $event->getNewNameCustom());
+                $this->nameRoleCustom = $newName;
+                return $newName;
+            }, $resolve, $reject);
+        });
     }
 
     public function getRoleName(): string
@@ -258,36 +288,43 @@ class RolePlayer implements \JsonSerializable
 
     /**
      * @param array|string $permissions
+     * @return Generator<string[]>
      */
-    public function setPermissions(array|string $permissions): void
+    public function setPermissions(array|string $permissions): Generator
     {
-        if (is_string($permissions)) {
-            $permissions = [$permissions];
-        }
-        $this->permissions = array_values($permissions);
-        DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "permissions", $this->getPermissions());
+        return Await::promise(function ($resolve, $reject) use ($permissions) {
+            Await::f2c(function () use ($permissions): Generator {
+                if (is_string($permissions)) {
+                    $permissions = [$permissions];
+                }
+                $permissions = array_values($permissions);
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "permissions", $permissions);
+                $this->permissions = $permissions;
+                return $permissions;
+            }, $resolve, $reject);
+        });
     }
 
     /**
      * @param array|string $permissions
-     * @return void
+     * @return Generator<string[]>
      */
-    public function addPermissions(array|string $permissions): void
+    public function addPermissions(array|string $permissions): Generator
     {
-        if (is_array($permissions)) {
-            $this->setPermissions(array_merge($this->permissions, array_values($permissions)));
-            return;
-        }
-        $this->setPermissions(array_merge($this->permissions, [$permissions]));
+        return Await::promise(function ($resolve, $reject) use ($permissions) {
+            Await::g2c($this->setPermissions(array_merge($this->permissions, is_array($permissions) ? $permissions : [$permissions])), $resolve, $reject);
+        });
     }
 
     /**
      * @param array|string $permissions
-     * @return void
+     * @return Generator<string[]>
      */
-    public function removePermissions(array|string $permissions): void
+    public function removePermissions(array|string $permissions): Generator
     {
-        $this->setPermissions(array_diff($this->permissions, is_array($permissions) ? $permissions : [$permissions]));
+        return Await::promise(function ($resolve, $reject) use ($permissions) {
+            Await::g2c($this->setPermissions(array_diff($this->permissions, is_array($permissions) ? $permissions : [$permissions])), $resolve, $reject);
+        });
     }
 
 

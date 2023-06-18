@@ -7,10 +7,13 @@ use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
+use SOFe\AwaitGenerator\Await;
 
 class setsubRoleSubCommand extends BaseSubCommand
 {
@@ -27,23 +30,28 @@ class setsubRoleSubCommand extends BaseSubCommand
 
     }
 
+    /**
+     * @throws CancelEventException
+     */
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
-        if (!$this->testPermissionSilent($sender)){
+        if (!$this->testPermissionSilent($sender)) {
             return;
         }
         $target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
         $role = $args['name'];
-        if (!$role instanceof Role){
-            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
+        if (!$role instanceof Role) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::role_not_found($role)));
             return;
         }
-        RoleManager::getInstance()->setSubRolesPlayer($target, $role);
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::set_sub_roles_sender($target, $role)));
+        Await::g2c(RoleManager::getInstance()->setSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_sub_roles_sender($target, $role = $resultUpdate->data)));
+            if ($resultUpdate->online) {
+                $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_sub_roles_target($role)));
+            }
+        }, function () {
 
-    }
-    public function getPermission(): string
-    {
-       return "rolemanager.command.set-sub-role.permission";
+        });
+
     }
 }

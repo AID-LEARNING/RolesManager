@@ -12,6 +12,7 @@ use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\ExtraEvent\Class\EventAttribute;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Main;
+use SOFe\AwaitGenerator\Await;
 
 class RolePlayerManager
 {
@@ -42,11 +43,11 @@ class RolePlayerManager
 
     public function loadPermissions(RolePlayer $rolePlayer): void
     {
-        RoleManager::getInstance()->addPermissions($rolePlayer, self::combinePermissionsAndSetTrue(array_merge($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions(), $rolePlayer->getPermissionsSubRoles())));
+        RoleManager::getInstance()->addPermissions($rolePlayer, self::combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions(), $rolePlayer->getPermissionsSubRoles()));
     }
 
-
-    private function combinePermissionsAndSetTrue(...$perms): array {
+    private function combinePermissionsAndSetTrue(...$perms): array
+    {
         return array_fill_keys(array_merge(...$perms), true);
     }
 

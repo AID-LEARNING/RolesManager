@@ -7,10 +7,13 @@ use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
+use SOFe\AwaitGenerator\Await;
 
 class removesubRoleSubCommand extends BaseSubCommand
 {
@@ -27,6 +30,9 @@ class removesubRoleSubCommand extends BaseSubCommand
 
     }
 
+    /**
+     * @throws CancelEventException
+     */
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
         if (!$this->testPermissionSilent($sender)){
@@ -38,12 +44,13 @@ class removesubRoleSubCommand extends BaseSubCommand
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
             return;
         }
-        RoleManager::getInstance()->removeSubRolesPlayer($target, $role);
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::remove_sub_roles_sender($target, $role)));
+        Await::g2c(RoleManager::getInstance()->removeSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target){
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::remove_sub_roles_sender($target, $role = $resultUpdate->data)));
+            if ($resultUpdate->online){
+                $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::remove_sub_roles_target($role)));
+            }
+        }, function (){
 
-    }
-    public function getPermission(): string
-    {
-       return "rolemanager.command.remove-sub-role.permission";
+        });
     }
 }

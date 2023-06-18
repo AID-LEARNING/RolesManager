@@ -6,11 +6,14 @@ use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
+use SOFe\AwaitGenerator\Await;
 
 class setRoleSubCommand extends BaseSubCommand
 {
@@ -27,6 +30,9 @@ class setRoleSubCommand extends BaseSubCommand
 
     }
 
+    /**
+     * @throws CancelEventException
+     */
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
     {
         if (!$this->testPermissionSilent($sender)){
@@ -38,12 +44,14 @@ class setRoleSubCommand extends BaseSubCommand
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
             return;
         }
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_role_sender($target,$role)));
-        RoleManager::getInstance()->setRolePlayer($target, $role);
+        Await::g2c(RoleManager::getInstance()->setRolePlayer($target,$role), function (ResultUpdate $resultUpdate) use ($sender, $target){
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_role_sender($target,$role = $resultUpdate->data)));
+            if ($resultUpdate->online){
+                $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_role_target($role)));
+            }
+        }, function (){
 
-    }
-    public function getPermission(): string
-    {
-       return "rolemanager.command.set-role.permission";
+        });
+
     }
 }

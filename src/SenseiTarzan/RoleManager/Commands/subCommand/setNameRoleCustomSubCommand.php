@@ -4,12 +4,16 @@ namespace SenseiTarzan\RoleManager\Commands\subCommand;
 
 use CortexPE\Commando\args\RawStringArgument;
 use CortexPE\Commando\BaseSubCommand;
+use Exception;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use CortexPE\Commando\args\TargetPlayerArgument;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
+use SenseiTarzan\RoleManager\Class\Exception\RoleNoNameCustomException;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
+use SOFe\AwaitGenerator\Await;
 
 class setNameRoleCustomSubCommand extends BaseSubCommand
 {
@@ -37,16 +41,12 @@ class setNameRoleCustomSubCommand extends BaseSubCommand
             return;
         }
         $nameCustom = $args['nameCustom'];
-        if (RoleManager::getInstance()->setNameRoleCustom($target, $nameCustom)) {
+        Await::g2c(RoleManager::getInstance()->setNameRoleCustom($target, $nameCustom), function (string $nameCustom) use ($sender, $target) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $nameCustom)));
-            return;
-        }
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
+        }, function (Exception $exception) use ($sender, $target, $nameCustom) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
+        });
 
 
-    }
-    public function getPermission(): string
-    {
-        return "rolemanager.command.nameCustom.permission";
     }
 }

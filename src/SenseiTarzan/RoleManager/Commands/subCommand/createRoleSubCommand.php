@@ -27,9 +27,4 @@ class createRoleSubCommand extends BaseSubCommand
         RoleManager::getInstance()->createRoleUI($sender);
 
     }
-
-    public function getPermission(): string
-    {
-        return "rolemanager.command.create-role.permission";
-    }
 }

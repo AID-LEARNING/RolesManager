@@ -2,6 +2,7 @@
 
 namespace SenseiTarzan\RoleManager\Class\Role;
 
+use JsonSerializable;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
@@ -10,7 +11,7 @@ use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\Utils;
 use Symfony\Component\Filesystem\Path;
 
-class Role implements  \JsonSerializable
+class Role  implements  JsonSerializable
 {
     private string $chatFormat, $nameTagFormat;
 

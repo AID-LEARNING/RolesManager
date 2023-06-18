@@ -27,4 +27,6 @@ projects:
       - src: AID-LEARNING/Commando/Commando
         version: ^3.0.0
         branch: pm5
+      - src: SOF3/await-generator/await-generator
+        version: ^3.5.0
 ...

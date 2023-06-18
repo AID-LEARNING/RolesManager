@@ -34,8 +34,4 @@ class reloadRoleSubCommand extends BaseSubCommand
         RolePlayerManager::getInstance()->reloadPermissions();
 
     }
-    public  function getPermission(): string
-    {
-       return "rolemanager.command.reload-role.permission";
-    }
 }

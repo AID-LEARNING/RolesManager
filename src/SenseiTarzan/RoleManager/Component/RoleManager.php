@@ -2,6 +2,9 @@
 namespace SenseiTarzan\RoleManager\Component;
 
 
+use Exception;
+use Generator;
+use InvalidArgumentException;
 use jojoe77777\FormAPI\CustomForm;
 use jojoe77777\FormAPI\ModalForm;
 use jojoe77777\FormAPI\SimpleForm;
@@ -14,14 +17,17 @@ use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\DataBase\Component\DataManager;
-use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Path\PathScanner;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\Utils;
+use SOFe\AwaitGenerator\Await;
 use Symfony\Component\Filesystem\Path;
 
 
@@ -179,31 +185,34 @@ class RoleManager
     /**
      * @param Player|string $player
      * @param array|string|Role|Role[] $roles
-     * @return void
+     * @return Generator
+     * @throws CancelEventException
      */
-    public function setSubRolesPlayer(Player|string $player, array|string|Role $roles): void
+    public function setSubRolesPlayer(Player|string $player, array|string|Role $roles): Generator
     {
-        $this->updateDataPlayer($player, $roles, 'setSubRoles');
+        return $this->updateDataPlayer($player, $roles, 'setSubRoles');
     }
 
     /**
      * @param Player|string $player
      * @param array|string|Role|Role[] $roles
-     * @return void
+     * @return Generator
+     * @throws CancelEventException
      */
-    public function addSubRolesPlayer(Player|string $player, array|string|Role $roles): void
+    public function addSubRolesPlayer(Player|string $player, array|string|Role $roles): Generator
     {
-        $this->updateDataPlayer($player, $roles, 'addSubRoles');
+       return $this->updateDataPlayer($player, $roles, 'addSubRoles');
     }
 
     /**
      * @param Player|string $player
      * @param array|string|Role|Role[] $roles
-     * @return void
+     * @return Generator
+     * @throws CancelEventException
      */
-    public function removeSubRolesPlayer(Player|string $player, array|string|Role $roles): void
+    public function removeSubRolesPlayer(Player|string $player, array|string|Role $roles): Generator
     {
-        $this->updateDataPlayer($player, $roles, 'removeSubRoles');
+        return $this->updateDataPlayer($player, $roles, 'removeSubRoles');
     }
 
     /**
@@ -318,75 +327,75 @@ class RoleManager
     /**
      * @param string|Player $player
      * @param Role|string $role
+     * @return Generator
+     * @throws CancelEventException
      */
-    public function setRolePlayer(Player|string $player, Role|string $role): void
+    public function setRolePlayer(Player|string $player, Role|string $role): Generator
     {
 
         if (is_string($role)) {
             $role = $this->getRole($role);
         }
-        $this->updateDataPlayer($player, $role);
+        return $this->updateDataPlayer($player, $role);
     }
 
     /**
      * @param Player $player
      * @param string $prefix
+     * @return Generator
      */
-    public function setPrefix(Player $player, string $prefix): bool
+    public function setPrefix(Player $player, string $prefix): Generator
     {
-        if (!RolePlayerManager::getInstance()->getPlayer($player)->setPrefix($prefix)) return false;
-        $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_prefix_target($prefix)));
-        return true;
+        return RolePlayerManager::getInstance()->getPlayer($player)->setPrefix($prefix);
     }
 
     /**
      * @param Player $player
      * @param string $roleNameCustom
-     * @return bool
+     * @return Generator
+     * @throws CancelEventException
      */
-    public function setNameRoleCustom(Player $player, string $roleNameCustom): bool
+    public function setNameRoleCustom(Player $player, string $roleNameCustom): Generator
     {
-        if (!RolePlayerManager::getInstance()->getPlayer($player)->setRoleNameCustom($roleNameCustom)) return false;
-        $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_name_role_custom_target($roleNameCustom)));;
-        return true;
+        return RolePlayerManager::getInstance()->getPlayer($player)->setRoleNameCustom($roleNameCustom);
     }
 
     /**
      * @param Player $player
      * @param string $suffix
+     * @return Generator
      */
-    public function setSuffix(Player $player, string $suffix): bool
+    public function setSuffix(Player $player, string $suffix): Generator
     {
-        if (!RolePlayerManager::getInstance()->getPlayer($player)->setSuffix($suffix)) return false;
-        $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_suffix_target($suffix)));
-        return true;
+        return RolePlayerManager::getInstance()->getPlayer($player)->setSuffix($suffix);
     }
 
     /**
      * @param string|Player $player
      * @param array|string $permission
      */
-    public function addPermissionPlayer(Player|string $player, array|string $permission): void
+    public function addPermissionPlayer(Player|string $player, array|string $permission): Generator
     {
-        $this->updateDataPlayer($player, $permission, "addPermissions");
+        return $this->updateDataPlayer($player, $permission, "addPermissions");
     }
 
     /**
      * @param string|Player $player
      * @param array|string $permission
      */
-    public function setPermissionPlayer(Player|string $player, array|string $permission): void
+    public function setPermissionPlayer(Player|string $player, array|string $permission): Generator
     {
-        $this->updateDataPlayer($player, $permission, "setPermissions");
+        return $this->updateDataPlayer($player, $permission, "setPermissions");
     }
 
     /**
      * @param string|Player $player
      * @param array|string $permission
+     * @throws CancelEventException
      */
-    public function removePermissionPlayer(Player|string $player, array|string $permission): void
+    public function removePermissionPlayer(Player|string $player, array|string $permission): Generator
     {
-        $this->updateDataPlayer($player, $permission, "removePermissions");
+        return $this->updateDataPlayer($player, $permission, "removePermissions");
     }
 
 
@@ -394,66 +403,59 @@ class RoleManager
      * @param string|Player $player
      * @param array|string|Role $data
      * @param string $type
+     * @return Generator
+     * @throws CancelEventException
      */
-    private function updateDataPlayer(Player|string $player, array|string|Role $data, string $type = "role"): void
+    private function updateDataPlayer(Player|string $player, array|string|Role $data, string $type = "role"): Generator
     {
-        if (is_string($player)) {
-            $player = Server::getInstance()->getPlayerExact($player) ?? $player;
-        }
-        $target = RolePlayerManager::getInstance()->getPlayer($player);
-        if ($target === null) {
-            if ($data instanceof Role) {
-                $data = $data->getId();
+        return Await::promise(function($resolve, $reject) use($player, $data, $type){
+            if (is_string($player)) {
+                $player = Server::getInstance()->getPlayerExact($player) ?? $player;
             }
-            if (is_array($data)) {
-                foreach ($data as $index => $datum) {
-                    if ($datum instanceof Role) {
-                        $data[$index] = $datum->getId();
+            Await::f2c(function () use ($player, $data, $type): Generator {
+                $target = RolePlayerManager::getInstance()->getPlayer($player);
+
+                if ($target === null) {
+                    if ($data instanceof Role) {
+                        $data = $data->getId();
                     }
+                    if (is_array($data)) {
+                        foreach ($data as $index => $datum) {
+                            if ($datum instanceof Role) {
+                                $data[$index] = $datum->getId();
+                            }
+                        }
+                    }
+                    yield from DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
+                    return new ResultUpdate(false, $data);
                 }
-            }
-            DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
-            return;
-        }
-        if (!($player instanceof Player)) return;
-        if ($player->isConnected()) {
-            switch ($type) {
-                case "role":
-                    if (!($data instanceof Role)) return;
-                    $target->setRole($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_role_target($data)));
-                    break;
-                case "addPermissions":
-                    $target->addPermissions($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::add_permissions_target($data)));
-
-                    break;
-                case "removePermissions":
-                    $target->removePermissions($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_permissions_target($data)));
-
-                    break;
-                case "setPermissions":
-                    $target->setPermissions($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_permissions_target($data)));
-                    break;
-                case "addSubRoles":
-                    $target->addSubRole($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::add_sub_roles_target($data)));
-                    break;
-                case "removeSubRoles":
-                    $target->removeSubRole($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_sub_roles_target($data)));
-                    break;
-                case "setSubRoles":
-                    $target->setSubRoles($data);
-                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_sub_roles_target($data)));
-                    break;
-
-            }
-
-            RolePlayerManager::getInstance()->loadPermissions($target);
-        }
+                $online = $player instanceof Player && $player->isConnected();
+                    switch ($type) {
+                        case "role":
+                            if (!($data instanceof Role)) {
+                                throw new InvalidArgumentException("The data must be a role");
+                            }
+                            return new ResultUpdate($online, yield from $target->setRole($data), true);
+                        case "addPermissions":
+                            return new ResultUpdate($online, yield from $target->addPermissions($data), true);
+                        case "removePermissions":
+                            return new ResultUpdate($online, yield from $target->removePermissions($data), true);
+                        case "setPermissions":
+                            return new ResultUpdate($online, yield from $target->setPermissions($data), true);
+                        case "addSubRoles":
+                            return new ResultUpdate($online, yield from $target->addSubRole($data), true);
+                        case "removeSubRoles":
+                            return new ResultUpdate($online, yield from $target->removeSubRole($data), true);
+                        case "setSubRoles":
+                            return new ResultUpdate($online, yield from $target->setSubRoles($data), true);
+                    }
+            }, function (ResultUpdate $data) use ($player,$resolve){
+                if ($data->online && $data->updatePermission) {
+                    RolePlayerManager::getInstance()->loadPermissions(RolePlayerManager::getInstance()->getPlayer($player));
+                }
+                $resolve($data);
+            }, $reject);
+        });
     }
 
     public function createRoleUI(Player $player): void
