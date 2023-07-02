@@ -31,11 +31,12 @@ class PlayerListener
     #[EventAttribute(EventPriority::MONITOR)]
     public function onChat(PlayerChatEvent $event): void
     {
-        Await::g2c(TextAttributeManager::getInstance()->formatMessage($event->getPlayer(), $event->getMessage()), function (ChatFormatter $chatFormatter) use ($event) {
+        Await::g2c(TextAttributeManager::getInstance()->formatMessage($event->getPlayer(), $event->getMessage()), function (?ChatFormatter $chatFormatter = null) use ($event) {
+            if($chatFormatter === null) return;
             $event->setFormatter($chatFormatter);
         }, function () use ($event) {
             $event->cancel();
-            $event->getPlayer()->sendMessage("Loading...");
+            $event->getPlayer()->sendMessage("Loading... Format message");
         });
     }
 
