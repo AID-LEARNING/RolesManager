@@ -2,7 +2,7 @@
 branches:
   - stable
   - beta
-  - pm5
+  - await
 projects:
   RolesManager:
     path: ""
