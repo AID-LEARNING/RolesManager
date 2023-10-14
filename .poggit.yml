@@ -24,9 +24,8 @@ projects:
         version: ^1.0.0
       - src: AID-LEARNING/libDataBase/libDataBase
         version: ^1.0.3
-      - src: AID-LEARNING/Commando/Commando
-        version: ^3.0.0
-        branch: pm5
+      - src: "AID-LEARNING/Commando/Commando"
+        version: ^3.1.0
       - src: SOF3/await-generator/await-generator
-        version: ^3.5.0
+        version: ^3.6.1
 ...

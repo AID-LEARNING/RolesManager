@@ -27,6 +27,7 @@ class JSONSave extends IDataSaveRoleManager
         return "Json System";
     }
 
+
     protected function createPromiseLoadDataPlayer(Player|string $player): Generator
     {
         return Await::promise(function ($resolve, $reject) use ($player) {
@@ -44,7 +45,7 @@ class JSONSave extends IDataSaveRoleManager
 
     protected function createPromiseSaveDataPlayer(Player|string $player, RolePlayer $rolePlayer): Generator
     {
-        Await::promise(function ($resolve, $reject) use ($player, $rolePlayer) {
+        return Await::promise(function ($resolve, $reject) use ($player, $rolePlayer) {
             try {
                 $this->config->set($rolePlayer->getId(), $rolePlayer->jsonSerialize());
                 $this->config->save();

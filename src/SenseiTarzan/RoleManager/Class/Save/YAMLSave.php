@@ -29,7 +29,7 @@ class YAMLSave extends IDataSaveRoleManager
 
     protected function createPromiseLoadDataPlayer(Player|string $player): Generator
     {
-        return Await::promise(function ($resolve, $reject) use ($player) {
+        return Await::promise(function ($resolve, $reject) use ($player): void {
             Await::f2c(function () use ($player): Generator {
                 if (!$this->config->exists($name = $player->getName(), true)) {
                     $rolePlayer = new RolePlayer($name, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);

@@ -10,6 +10,7 @@ use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 use SenseiTarzan\RoleManager\Event\EventLoadRolePlayer;
 use SOFe\AwaitGenerator\Await;
+use Throwable;
 
 abstract class IDataSaveRoleManager implements IDataSave
 {
@@ -24,8 +25,6 @@ abstract class IDataSaveRoleManager implements IDataSave
             RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer);
             $event = new EventLoadRolePlayer($player, $rolePlayer);
             $event->call();
-        }, function (Exception $exception) use ($player) {
-            $player->kick("Error: " . $exception->getMessage());
         });
     }
 
