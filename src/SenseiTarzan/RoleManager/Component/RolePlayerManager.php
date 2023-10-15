@@ -11,6 +11,8 @@ use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\ExtraEvent\Class\EventAttribute;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Main;
+use SOFe\AwaitGenerator\Await;
 
 class RolePlayerManager
 {
@@ -22,32 +24,37 @@ class RolePlayerManager
     private array $players = [];
 
 
-    public function loadPlayer(Player $player, RolePlayer $rolePlayer): void{
+    public function loadPlayer(Player $player, RolePlayer $rolePlayer): void
+    {
+        $rolePlayer->setAttachment($player->addAttachment(Main::getInstance()));
         $this->players[$rolePlayer->getId()] = $rolePlayer;
-        $this->loadPermissions($player,$rolePlayer);
+        $this->loadPermissions($rolePlayer);
     }
 
-    public function getPlayer(Player|string $player): ?RolePlayer{
-        return $this->players[strtolower(is_string($player) ? $player : $player->getName())]?? null;
+    public function getPlayer(Player|string $player): ?RolePlayer
+    {
+        return $this->players[strtolower(is_string($player) ? $player : $player->getName())] ?? null;
     }
 
-    public function removePlayer(Player|string  $player): void{
+    public function removePlayer(Player|string $player): void
+    {
         unset($this->players[strtolower(is_string($player) ? $player : $player->getName())]);
     }
 
-    public function loadPermissions(Player $player, RolePlayer $rolePlayer): void
+    public function loadPermissions(RolePlayer $rolePlayer): void
     {
-        RoleManager::getInstance()->addPermissions($player, $this->combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions()));
+        RoleManager::getInstance()->addPermissions($rolePlayer, self::combinePermissionsAndSetTrue($rolePlayer->getPermissions(), $rolePlayer->getRole()->getAllPermissions(), $rolePlayer->getPermissionsSubRoles()));
     }
-    private function combinePermissionsAndSetTrue(...$perms): array {
+
+    private function combinePermissionsAndSetTrue(...$perms): array
+    {
         return array_fill_keys(array_merge(...$perms), true);
     }
 
     public function reloadPermissions(): void
     {
-        foreach (Server::getInstance()->getOnlinePlayers() as $player){
-            if (!$player->isConnected()) return;
-            $this->loadPermissions($player, $this->getPlayer($player));
+        foreach ($this->players as $rolePlayer) {
+            $this->loadPermissions($rolePlayer);
         }
     }
 

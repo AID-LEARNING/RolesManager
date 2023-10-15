@@ -4,12 +4,15 @@ namespace SenseiTarzan\RoleManager\Component;
 
 use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
+use SenseiTarzan\RoleManager\Class\Exception\RolePlayerNotFoundException;
 use SenseiTarzan\RoleManager\Class\Text\ChatAttribute;
+use SenseiTarzan\RoleManager\Class\Text\CustomChatFormatter;
 use SenseiTarzan\RoleManager\Class\Text\NameTagAttribute;
 use DaPigGuy\PiggyFactions\PiggyFactions;
 use DaPigGuy\PiggyFactions\players\PlayerManager;
 use ShockedPlot7560\FactionMaster\API\MainAPI;
 use ShockedPlot7560\FactionMaster\Utils\Ids as FactionMasterID;
+use SOFe\AwaitGenerator\Await;
 
 class TextAttributeManager
 {
@@ -158,18 +161,24 @@ class TextAttributeManager
      * @param Player $player
      * @param string $message
      * @param string|null $format
-     * @return void
+     * @return \Generator
      */
-    public function formatMessage(Player $player, string $message, string|null &$format): void
+    public function formatMessage(Player $player, string $message, string|null $format = null): \Generator
     {
-        $rolePlayer = RolePlayerManager::getInstance()->getPlayer($player);
-        if ($rolePlayer === null){
-            return;
-        }
-        $format ??= $rolePlayer->getRole()->getChatFormat();
-        foreach ($this->getChatAttributesAll() as $chatAttribute) {
-            $chatAttribute->runChangeChat($player, $message, $format);
-        }
+        return Await::promise(function ($resolve, $reject) use($player, $message, $format){
+
+
+            $rolePlayer = RolePlayerManager::getInstance()->getPlayer($player);
+            if ($rolePlayer === null){
+                $reject(new RolePlayerNotFoundException());
+                return;
+            }
+            $format ??= $rolePlayer->getRole()->getChatFormat();
+            foreach ($this->getChatAttributesAll() as $chatAttribute) {
+                $chatAttribute->runChangeChat($player, $message, $format);
+            }
+            $resolve(new CustomChatFormatter($format));
+        });
     }
 
     /**
@@ -178,17 +187,21 @@ class TextAttributeManager
      * @param string|null $format
      * @return void
      */
-    public function formatNameTag(Player $player, string|null &$format): void
+    public function formatNameTag(Player $player, string|null $format = null): \Generator
     {
+        return Await::promise(function ( $resolve, $reject) use($player, $format){
 
-        $rolePlayer = RolePlayerManager::getInstance()->getPlayer($player);
-        if ($rolePlayer === null){
-            return;
-        }
-        $format ??= $rolePlayer->getRole()->getNameTagFormat();
-        foreach ($this->getNameTagAttributesAll() as $nameTagAttribute) {
-            $nameTagAttribute->runChangeNameTag($player, $format);
-        }
+            $rolePlayer = RolePlayerManager::getInstance()->getPlayer($player);
+            if ($rolePlayer === null){
+                $reject(new RolePlayerNotFoundException());
+                return;
+            }
+            $format ??= $rolePlayer->getRole()->getNameTagFormat();
+            foreach ($this->getNameTagAttributesAll() as $nameTagAttribute) {
+                $nameTagAttribute->runChangeNameTag($player, $format);
+            }
+            $resolve($format);
+        });
 
     }
 }

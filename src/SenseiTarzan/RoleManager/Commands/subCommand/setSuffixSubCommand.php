@@ -10,6 +10,7 @@ use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use CortexPE\Commando\args\TargetPlayerArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
+use SOFe\AwaitGenerator\Await;
 
 class setSuffixSubCommand extends BaseSubCommand
 {
@@ -37,12 +38,14 @@ class setSuffixSubCommand extends BaseSubCommand
             return;
         }
         $suffix = $args['suffix'];
-        if (RoleManager::getInstance()->setSuffix($target, $suffix)) {
+        Await::g2c(RoleManager::getInstance()->setSuffix($target, $suffix), function (string $suffix) use ($sender, $target) {
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_suffix_sender($target, $suffix)));
-            return;
-        }
-        $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_suffix_sender($target, $suffix)));
+            $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_suffix_target($suffix)));
+        }, function () use ($sender, $target, $suffix) {
+            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_suffix_sender($target, $suffix)));
+        });
 
 
     }
+
 }
