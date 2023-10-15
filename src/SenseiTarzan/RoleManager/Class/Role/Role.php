@@ -173,7 +173,7 @@ class Role  implements  JsonSerializable
         $permissions = [];
         foreach ($this->heritages as $heritage){
             if (is_array($permissionsRole =RoleManager::getInstance()->getPermissionRole($heritage))){
-                $permissions[] = $permissionsRole;
+                $permissions = array_merge($permissions, $permissionsRole);
             }
         }
         return $permissions;
@@ -229,6 +229,7 @@ class Role  implements  JsonSerializable
 
     /**
      * @param bool $changeName
+     * @throws \JsonException
      */
     public function setChangeName(bool $changeName = false): void
     {

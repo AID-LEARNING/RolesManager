@@ -13,8 +13,9 @@ class Utils
         return array_map(fn (string $role) => Utils::roleStringToId($role), $heritages);
     }
 
-    public static function removeColorInRole(string $name): string{
-        return str_replace(array_values(TextFormat::COLORS), "", $name);
+    public static function removeColorInRole(string $name): string
+    {
+            return TextFormat::clean($name);
     }
 
 }

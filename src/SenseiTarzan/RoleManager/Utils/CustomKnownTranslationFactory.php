@@ -281,6 +281,11 @@ class CustomKnownTranslationFactory
         return new Translatable(CustomKnownTranslationKeys::ERROR_SET_NAME_ROLE_CUSTOM_SENDER, ['player' => $player->getName(), 'nameCustom' => $nameRoleCustom]);
     }
 
+    public static function error_set_name_role_is_filtered_sender(Player $player, string $nameRoleCustom): Translatable
+    {
+        return new Translatable(CustomKnownTranslationKeys::ERROR_SET_NAME_ROLE_IS_FILTERED_SENDER, ['player' => $player->getName(), 'nameCustom' => $nameRoleCustom]);
+    }
+
     public static function set_name_role_custom_target(string $nameRoleCustom): Translatable
     {
         return new Translatable(CustomKnownTranslationKeys::SET_NAME_ROLE_CUSTOM_TARGET, ['nameCustom' => $nameRoleCustom]);

@@ -3,7 +3,9 @@ namespace SenseiTarzan\RoleManager;
 
 use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\AsyncTask;
 use pocketmine\scheduler\Task;
+use pocketmine\utils\Internet;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\ExtraEvent\Component\EventLoader;
@@ -55,22 +57,5 @@ class Main extends PluginBase
         }
 
         $this->getServer()->getCommandMap()->register("senseitarzan", new RoleCommands($this, "role", "Role Command", ["group"]));
-    }
-
-    public static function sleeper(): \Generator{
-        return Await::promise(function ($resolve, $reject) {
-            $task = new class($resolve, $reject) extends Task{
-                public function __construct(private $resolve, private $reject){}
-                public function onRun(): void
-                {
-                    ($this->resolve)();
-                }
-                public function onCancel(): void
-                {
-                    ($this->reject)(new \Exception("Task cancelled", code: 950));
-                }
-            };
-            Main::getInstance()->getScheduler()->scheduleDelayedTask($task, 20);
-        });
     }
 }

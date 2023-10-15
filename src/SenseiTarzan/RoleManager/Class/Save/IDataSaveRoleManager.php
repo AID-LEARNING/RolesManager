@@ -5,6 +5,7 @@ namespace SenseiTarzan\RoleManager\Class\Save;
 use Exception;
 use Generator;
 use pocketmine\player\Player;
+use pocketmine\utils\TextFormat;
 use SenseiTarzan\DataBase\Class\IDataSave;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
@@ -25,6 +26,8 @@ abstract class IDataSaveRoleManager implements IDataSave
             RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer);
             $event = new EventLoadRolePlayer($player, $rolePlayer);
             $event->call();
+        }, function (Throwable $exception) use ($player) {
+            $player->kick(TextFormat::DARK_RED . "Error: " . $exception->getMessage());
         });
     }
 

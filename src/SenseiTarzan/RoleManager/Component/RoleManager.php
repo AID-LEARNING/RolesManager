@@ -45,6 +45,10 @@ class RoleManager
     private Server $server;
     private Config $config;
     private Role $defaultRole;
+    /**
+     * @var array|array[]|false[]|null[]|string[]|\string[][]
+     */
+    private array $listExcludeName;
 
 
     public function __construct(PluginBase $pl)
@@ -55,6 +59,8 @@ class RoleManager
 
         $this->server = Server::getInstance();
         $this->loadRoles();
+        $this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name),  array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
+
     }
 
 
@@ -158,7 +164,7 @@ class RoleManager
      */
     public function getExcludeNameRole(): array
     {
-        return $this->config->get("exclude-name-role", $this->getRoles(true, true));
+        return $this->listExcludeName;
     }
 
 
@@ -479,6 +485,7 @@ class RoleManager
                     $this->createRole($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName)->getName())
             )
             );
+            $this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name),  array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
         });
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_create_role()));
         $ui->addInput("name Role", "King");// 0
@@ -689,6 +696,7 @@ class RoleManager
             if (@unlink($role->getConfig()->getPath())) {
                 unset($this->roles[$role->getId()]);
                 $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_role($role->getName())));
+                $this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name),  array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
             }
         });
         $ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_remove($role->getName())));

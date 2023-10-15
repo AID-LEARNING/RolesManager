@@ -9,12 +9,14 @@ use pocketmine\permission\PermissionAttachment;
 use pocketmine\Server;
 use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
+use SenseiTarzan\RoleManager\Class\Exception\RoleFilteredNameCustomException;
 use SenseiTarzan\RoleManager\Class\Exception\RoleNoNameCustomException;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Event\EventChangeNameCustom;
 use SenseiTarzan\RoleManager\Event\EventChangePrefix;
 use SenseiTarzan\RoleManager\Event\EventChangeRole;
 use SenseiTarzan\RoleManager\Event\EventChangeSuffix;
+use SenseiTarzan\RoleManager\Utils\Utils;
 use SOFe\AwaitGenerator\Await;
 
 class RolePlayer implements JsonSerializable
@@ -247,12 +249,17 @@ class RolePlayer implements JsonSerializable
                 $reject(new RoleNoNameCustomException());
                 return;
             }
-            $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getNameRoleCustom(), $role);
+            if(in_array(mb_strtolower(Utils::removeColorInRole($role)), RoleManager::getInstance()->getExcludeNameRole())) {
+                $reject(new RoleFilteredNameCustomException());
+                return;
+            }
+            $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getRoleName(), $role);
             $event->call();
             if ($event->isCancelled()) {
                 $reject(new CancelEventException());
                 return;
             }
+
             Await::f2c(function () use ($event, $role): Generator {
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $newName = $event->getNewNameCustom());
                 $this->nameRoleCustom = $newName;
