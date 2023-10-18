@@ -2,7 +2,5 @@
 data-type: "json"
 nametag-task-tick: 20 # 1s = 20 tick or false for disable nametag Fomrat
 exclude-name-role: []
-test:
-  pp:
 ...
 
