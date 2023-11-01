@@ -67,6 +67,7 @@ class RolePlayer implements JsonSerializable
 
     /**
      * @param string $prefix
+     * @return Generator
      */
     public function setPrefix(string $prefix): Generator
     {
@@ -81,7 +82,10 @@ class RolePlayer implements JsonSerializable
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $prefix = $event->getNewPrefix());
                 $this->prefix = $prefix;
                 return $prefix;
-            }, $resolve, $reject);
+            },  function (string $prefix) use ($resolve){
+                $this->prefix = $prefix;
+                $resolve($prefix);
+            }, $reject);
         });
 
     }
@@ -110,9 +114,11 @@ class RolePlayer implements JsonSerializable
             }
             Await::f2c(function () use($event) : Generator{
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $suffix = $event->getNewSuffix());
-                $this->suffix = $suffix;
                 return $suffix;
-            }, $resolve, $reject);
+            }, function (string $suffix) use ($resolve){
+                $this->suffix = $suffix;
+                $resolve($suffix);
+            }, $reject);
         });
     }
 
@@ -175,7 +181,7 @@ class RolePlayer implements JsonSerializable
      */
     public function removeSubRole(array|string|Role $roles): Generator
     {
-        return $this->setSubRoles(array_diff($this->subRoles, $this->filterNoHasSubRoles(is_array($roles) ? $roles : [$roles])));
+        return $this->setSubRoles(array_diff($this->subRoles, (is_array($roles) ? $roles : [$roles])));
     }
 
     /**
@@ -193,9 +199,11 @@ class RolePlayer implements JsonSerializable
             $roles = array_values($roles);
             Await::f2c(function () use ($roles): Generator {
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "subRoles", $roles);
-                $this->subRoles = $roles;
                 return $roles;
-            }, $resolve, $reject);
+            }, function (array $roles) use ($resolve){
+                $this->subRoles = $roles;
+                $resolve($roles);
+            }, $reject);
         });
 
     }
@@ -220,11 +228,12 @@ class RolePlayer implements JsonSerializable
                 return;
             }
             Await::f2c(function () use ($event, $role): Generator {
-
-                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", ($id = ($role = $event->getNewRole())->getId()));
-                $this->role = $id;
+                yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", (($role = $event->getNewRole())->getId()));
                 return $role;
-            }, $resolve, $reject);
+            }, function (Role $role) use ($resolve){
+                $this->role = $role->getId();
+                $resolve($role);
+            }, $reject);
         });
     }
 
@@ -241,7 +250,7 @@ class RolePlayer implements JsonSerializable
      * @return Generator<string>
      * @throws CancelEventException
      */
-    public function setRoleNameCustom(string $role): Generator
+    public function setRoleNameCustom(?string $role = null): Generator
     {
 
         return Await::promise(function ($resolve, $reject) use ($role) {
@@ -249,11 +258,16 @@ class RolePlayer implements JsonSerializable
                 $reject(new RoleNoNameCustomException());
                 return;
             }
-            if(in_array(mb_strtolower(Utils::removeColorInRole($role)), RoleManager::getInstance()->getExcludeNameRole())) {
+            if (empty($role) || $role === "{&originalName}") {
+                $role = $this->getRole()->getName();
+            }
+            $newName = mb_strtolower(Utils::removeColorInRole($role));
+            $checkEqualRole = $newName === $this->getRole()->getId();
+            if (!$checkEqualRole && in_array($newName, RoleManager::getInstance()->getExcludeNameRole())) {
                 $reject(new RoleFilteredNameCustomException());
                 return;
             }
-            $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getRoleName(), $role);
+            $event = new EventChangeNameCustom(Server::getInstance()->getPlayerExact($this->getName()), $this->getRoleName(), $checkEqualRole ? $this->getRole()->getName() : $role);
             $event->call();
             if ($event->isCancelled()) {
                 $reject(new CancelEventException());
@@ -262,9 +276,11 @@ class RolePlayer implements JsonSerializable
 
             Await::f2c(function () use ($event, $role): Generator {
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $newName = $event->getNewNameCustom());
-                $this->nameRoleCustom = $newName;
                 return $newName;
-            }, $resolve, $reject);
+            }, function (string $newName) use ($resolve) {
+                $this->nameRoleCustom = $newName;
+                $resolve($newName);
+            }, $reject);
         });
     }
 
@@ -306,9 +322,11 @@ class RolePlayer implements JsonSerializable
                 }
                 $permissions = array_values($permissions);
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "permissions", $permissions);
-                $this->permissions = $permissions;
                 return $permissions;
-            }, $resolve, $reject);
+            }, function (array $permissions) use ($resolve){
+                $this->permissions = $permissions;
+                $resolve($permissions);
+            }, $reject);
         });
     }
 
@@ -318,9 +336,7 @@ class RolePlayer implements JsonSerializable
      */
     public function addPermissions(array|string $permissions): Generator
     {
-        return Await::promise(function ($resolve, $reject) use ($permissions) {
-            Await::g2c($this->setPermissions(array_merge($this->permissions, is_array($permissions) ? $permissions : [$permissions])), $resolve, $reject);
-        });
+        return $this->setPermissions(array_merge($this->getPermissions(), (is_array($permissions) ? $permissions : [$permissions])));
     }
 
     /**
@@ -329,9 +345,7 @@ class RolePlayer implements JsonSerializable
      */
     public function removePermissions(array|string $permissions): Generator
     {
-        return Await::promise(function ($resolve, $reject) use ($permissions) {
-            Await::g2c($this->setPermissions(array_diff($this->permissions, is_array($permissions) ? $permissions : [$permissions])), $resolve, $reject);
-        });
+        return $this->setPermissions(array_diff($this->getPermissions(), (is_array($permissions) ? $permissions : [$permissions])));
     }
 
 

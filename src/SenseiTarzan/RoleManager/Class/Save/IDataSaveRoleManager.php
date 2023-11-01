@@ -38,11 +38,11 @@ abstract class IDataSaveRoleManager implements IDataSave
 
     final public function updateOnline(string $id, string $type, mixed $data): Generator
     {
-        return $this->createPromiseUpdateOnline($id, $type, $data);
+        return $this->createPromiseUpdateOnline(mb_strtolower($id), $type, $data);
     }
 
     final public function updateOffline(string $id, string $type, mixed $data): Generator
     {
-        return $this->createPromiseUpdateOffline($id, $type, $data);
+        return $this->createPromiseUpdateOffline(mb_strtolower($id), $type, $data);
     }
 }

@@ -59,8 +59,7 @@ class RoleManager
 
         $this->server = Server::getInstance();
         $this->loadRoles();
-        $this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name),  array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
-
+        $this->listExcludeName = Utils::rolesStringToIdArray(array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
     }
 
 
@@ -407,53 +406,48 @@ class RoleManager
 
     /**
      * @param string|Player $player
-     * @param array|string|Role $data
+     * @param array|string|Role $raw
      * @param string $type
      * @return Generator
      * @throws CancelEventException
      */
-    private function updateDataPlayer(Player|string $player, array|string|Role $data, string $type = "role"): Generator
+    private function updateDataPlayer(Player|string $player, array|string|Role $raw, string $type = "role"): Generator
     {
-        return Await::promise(function($resolve, $reject) use($player, $data, $type){
+        return Await::promise(function($resolve, $reject) use($player, $raw, $type){
             if (is_string($player)) {
                 $player = Server::getInstance()->getPlayerExact($player) ?? $player;
             }
-            Await::f2c(function () use ($player, $data, $type): Generator {
+            Await::f2c(function () use ($player, $raw, $type): Generator {
                 $target = RolePlayerManager::getInstance()->getPlayer($player);
-
                 if ($target === null) {
+                    $data = $raw;
                     if ($data instanceof Role) {
                         $data = $data->getId();
-                    }
-                    if (is_array($data)) {
-                        foreach ($data as $index => $datum) {
-                            if ($datum instanceof Role) {
-                                $data[$index] = $datum->getId();
-                            }
-                        }
+                    }else if (is_array($data)) {
+                        $data = array_values(array_map(fn(Role|string $value) => ($value instanceof Role ? $value->getId() : $value), $data));
                     }
                     yield from DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
-                    return new ResultUpdate(false, $data);
+                    return new ResultUpdate(false, $raw);
                 }
                 $online = $player instanceof Player && $player->isConnected();
                     switch ($type) {
                         case "role":
-                            if (!($data instanceof Role)) {
+                            if (!($raw instanceof Role)) {
                                 throw new InvalidArgumentException("The data must be a role");
                             }
-                            return new ResultUpdate($online, yield from $target->setRole($data), true);
+                            return new ResultUpdate($online, yield from $target->setRole($raw), true);
                         case "addPermissions":
-                            return new ResultUpdate($online, yield from $target->addPermissions($data), true);
+                            return new ResultUpdate($online, yield from $target->addPermissions($raw), true);
                         case "removePermissions":
-                            return new ResultUpdate($online, yield from $target->removePermissions($data), true);
+                            return new ResultUpdate($online, yield from $target->removePermissions($raw), true);
                         case "setPermissions":
-                            return new ResultUpdate($online, yield from $target->setPermissions($data), true);
+                            return new ResultUpdate($online, yield from $target->setPermissions($raw), true);
                         case "addSubRoles":
-                            return new ResultUpdate($online, yield from $target->addSubRole($data), true);
+                            return new ResultUpdate($online, yield from $target->addSubRole($raw), true);
                         case "removeSubRoles":
-                            return new ResultUpdate($online, yield from $target->removeSubRole($data), true);
+                            return new ResultUpdate($online, yield from $target->removeSubRole($raw), true);
                         case "setSubRoles":
-                            return new ResultUpdate($online, yield from $target->setSubRoles($data), true);
+                            return new ResultUpdate($online, yield from $target->setSubRoles($raw), true);
                     }
             }, function (ResultUpdate $data) use ($player,$resolve){
                 if ($data->online && $data->updatePermission) {

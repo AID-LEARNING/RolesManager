@@ -47,7 +47,7 @@ class setRoleSubCommand extends BaseSubCommand
         Await::g2c(RoleManager::getInstance()->setRolePlayer($target,$role), function (ResultUpdate $resultUpdate) use ($sender, $target){
             $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_role_sender($target,$role = $resultUpdate->data)));
             if ($resultUpdate->online){
-                $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_role_target($role)));
+               $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_role_target($role)));
             }
         }, function (){
 
