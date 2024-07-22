@@ -24,14 +24,33 @@ abstract class IDataSaveRoleManager implements IDataSave
         assert($player instanceof Player);
         Await::g2c($this->createPromiseLoadDataPlayer($player), function (RolePlayer $rolePlayer) use ($player) {
             RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer);
-            $event = new EventLoadRolePlayer($player, $rolePlayer);
-            $event->call();
+            if (EventLoadRolePlayer::hasHandlers()) {
+                $event = new EventLoadRolePlayer($player, $rolePlayer);
+                $event->call();
+            }
         }, function (Throwable $exception) use ($player) {
             $player->kick(TextFormat::DARK_RED . "Error: " . $exception->getMessage());
         });
     }
 
-    abstract protected function createPromiseSaveDataPlayer(Player|string $player, RolePlayer $rolePlayer): Generator;
+	final public function loadDataPlayerByMiddleware(Player|string $player): Generator
+	{
+		assert($player instanceof Player);
+		return Await::promise(function($resolve) use ($player) {
+			Await::g2c($this->createPromiseLoadDataPlayer($player), function (RolePlayer $rolePlayer) use ($player, $resolve) {
+				RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer);
+				if (EventLoadRolePlayer::hasHandlers()) {
+					$event = new EventLoadRolePlayer($player, $rolePlayer);
+					$event->call();
+				}
+				$resolve();
+			}, function (Throwable $exception) use ($player, $resolve) {
+				$resolve($exception);
+			});
+		});
+	}
+
+    abstract protected function createPromiseSaveDataPlayer(RolePlayer $rolePlayer): Generator;
     abstract public function createPromiseUpdateOnline(string $id, string $type, mixed $data): Generator;
 
     abstract public function createPromiseUpdateOffline(string $id, string $type, mixed $data): Generator;

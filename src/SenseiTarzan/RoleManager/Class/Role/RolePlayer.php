@@ -6,6 +6,7 @@ use Error;
 use Generator;
 use JsonSerializable;
 use pocketmine\permission\PermissionAttachment;
+use pocketmine\player\Player;
 use pocketmine\Server;
 use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
@@ -36,9 +37,9 @@ class RolePlayer implements JsonSerializable
      * @param array $permissions
      * @throws \JsonException
      */
-    public function __construct(private string $name, private string $prefix, private string $suffix, private string $role, private array $subRoles, private string|null $nameRoleCustom, private array $permissions = [])
+    public function __construct(private Player $player, private string $prefix, private string $suffix, private string $role, private array $subRoles, private string|null $nameRoleCustom, private array $permissions = [])
     {
-        $this->id = strtolower($this->name);
+        $this->id = strtolower($this->player->getName());
     }
 
     /**
@@ -54,7 +55,7 @@ class RolePlayer implements JsonSerializable
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->player->getName();
     }
 
     /**
@@ -80,7 +81,6 @@ class RolePlayer implements JsonSerializable
             }
             Await::f2c(function () use ($event): Generator {
                 yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $prefix = $event->getNewPrefix());
-                $this->prefix = $prefix;
                 return $prefix;
             },  function (string $prefix) use ($resolve){
                 $this->prefix = $prefix;
@@ -100,6 +100,7 @@ class RolePlayer implements JsonSerializable
 
     /**
      * @param string $suffix
+     * @return Generator
      */
     public function setSuffix(string $suffix): Generator
     {
@@ -146,7 +147,7 @@ class RolePlayer implements JsonSerializable
 
     /**
      * @param array $roles
-     * @return void
+     * @return array
      */
     public function filterNoHasSubRoles(array $roles): array
     {
@@ -246,9 +247,8 @@ class RolePlayer implements JsonSerializable
     }
 
     /**
-     * @param string $role
+     * @param string|null $role
      * @return Generator<string>
-     * @throws CancelEventException
      */
     public function setRoleNameCustom(?string $role = null): Generator
     {

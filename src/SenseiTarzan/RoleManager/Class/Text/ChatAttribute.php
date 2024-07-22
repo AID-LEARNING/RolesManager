@@ -6,11 +6,10 @@ use Closure;
 use pocketmine\player\Player;
 use pocketmine\utils\Utils;
 
-class ChatAttribute
+readonly class ChatAttribute
 {
     /**
      * @param string $name
-     * @param string $search
      * @param Closure $changeChat <code>
      * function (Player $player, string $message, string $search, string &$format): string {
      *   return $finaleString;

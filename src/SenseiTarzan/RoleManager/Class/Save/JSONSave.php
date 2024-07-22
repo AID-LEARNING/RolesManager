@@ -8,6 +8,7 @@ use pocketmine\player\Player;
 use pocketmine\utils\Config;
 use SenseiTarzan\RoleManager\Class\Exception\SaveDataException;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Class\Role\RolePlayerOffline;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SOFe\AwaitGenerator\Await;
 use Symfony\Component\Filesystem\Path;
@@ -32,29 +33,32 @@ class JSONSave extends IDataSaveRoleManager
     {
         return Await::promise(function ($resolve, $reject) use ($player) {
             Await::f2c(function () use ($player): Generator {
-                if (!$this->config->exists($name = $player->getName(), true)) {
-                    $rolePlayer = new RolePlayer($name, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
-                    yield from $this->createPromiseSaveDataPlayer($player, $rolePlayer);
+                if (!$this->config->exists($name = strtolower($player->getName()), true)) {
+                    $rolePlayer = new RolePlayer($player, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
+                    yield from $this->createPromiseSaveDataPlayer($rolePlayer);
                     return $rolePlayer;
                 }
-                $infoPlayer = $this->config->get(strtolower($name));
-                return new RolePlayer($name, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(), $infoPlayer['subRoles'] ?? [], $infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []);
+                $infoPlayer = $this->config->get($name);
+                return new RolePlayer($player, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(), $infoPlayer['subRoles'] ?? [], $infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []);
             }, $resolve, $reject);
         });
     }
 
-    protected function createPromiseSaveDataPlayer(Player|string $player, RolePlayer $rolePlayer): Generator
+    protected function createPromiseSaveDataPlayer(RolePlayer $rolePlayer): Generator
     {
-        return Await::promise(function ($resolve, $reject) use ($player, $rolePlayer) {
+        return Await::promise(function ($resolve, $reject) use ($rolePlayer) {
             try {
                 $this->config->set($rolePlayer->getId(), $rolePlayer->jsonSerialize());
                 $this->config->save();
                 $resolve();
             } catch (JsonException) {
-                $reject(new SaveDataException("Error save data player {$player->getName()}"));
+                $reject(new SaveDataException("Error save data player {$rolePlayer->getName()}"));
             }
         });
     }
+	/*
+	 * Fatal error: Declaration of SenseiTarzan\RoleManagerSQL\Class\Save\SQLSave::createPromiseSaveDataPlayer(SenseiTarzan\RoleManager\Class\Role\RolePlayer $rolePlayer): Generator must be compatible with SenseiTarzan\RoleManager\Class\Save\IDataSaveRoleManager::createPromiseSaveDataPlayer(pocketmine\player\Player|string $player, SenseiTarzan\RoleManager\Class\Role\RolePlayer $rolePlayer): Generator in phar:///home/container/plugins/RoleManagerSQL (1).phar/src/SenseiTarzan/RoleManagerSQL/Class/Save/SQLSave.php on line 66
+	 */
 
 
     public function createPromiseUpdateOffline(string $id, string $type, mixed $data): Generator
@@ -62,8 +66,8 @@ class JSONSave extends IDataSaveRoleManager
         return Await::promise(function ($resolve, $reject) use ($id, $type, $data) {
             try {
                 if (!$this->config->exists($id, true)) {
-                    $rolePlayer = new RolePlayer($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
-                    $this->config->set(strtolower($id), ($rolePlayer)->jsonSerialize());
+                    $rolePlayer = new RolePlayerOffline($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
+                    $this->config->set($rolePlayer->getId(), $rolePlayer->jsonSerialize());
                     unset($rolePlayer);
                 }
                 $this->config->setNested($search = (strtolower($id) . "." . (match ($type) {

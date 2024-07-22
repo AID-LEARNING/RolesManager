@@ -8,6 +8,7 @@ use pocketmine\player\Player;
 use pocketmine\utils\Config;
 use SenseiTarzan\RoleManager\Class\Exception\SaveDataException;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Class\Role\RolePlayerOffline;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SOFe\AwaitGenerator\Await;
 use Symfony\Component\Filesystem\Path;
@@ -24,33 +25,34 @@ class YAMLSave extends IDataSaveRoleManager
 
     public function getName(): string
     {
-        return "Yaml System";
+        return "YAML System";
     }
+
 
     protected function createPromiseLoadDataPlayer(Player|string $player): Generator
     {
-        return Await::promise(function ($resolve, $reject) use ($player): void {
+        return Await::promise(function ($resolve, $reject) use ($player) {
             Await::f2c(function () use ($player): Generator {
-                if (!$this->config->exists($name = $player->getName(), true)) {
-                    $rolePlayer = new RolePlayer($name, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
-                    yield from $this->createPromiseSaveDataPlayer($player, $rolePlayer);
+                if (!$this->config->exists($name = strtolower($player->getName()), true)) {
+                    $rolePlayer = new RolePlayer($player, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
+                    yield from $this->createPromiseSaveDataPlayer($rolePlayer);
                     return $rolePlayer;
                 }
-                $infoPlayer = $this->config->get(strtolower($name));
-                return new RolePlayer($name, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(), $infoPlayer['subRoles'] ?? [], $infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []);
+                $infoPlayer = $this->config->get($name);
+                return new RolePlayer($player, $infoPlayer['prefix'] ?? "", $infoPlayer['suffix'] ?? "", $infoPlayer['role'] ?? RoleManager::getInstance()->getDefaultRole()->getId(), $infoPlayer['subRoles'] ?? [], $infoPlayer['nameRoleCustom'] ?? null, $infoPlayer['permissions'] ?? []);
             }, $resolve, $reject);
         });
     }
 
-    protected function createPromiseSaveDataPlayer(Player|string $player, RolePlayer $rolePlayer): Generator
+    protected function createPromiseSaveDataPlayer(RolePlayer $rolePlayer): Generator
     {
-        yield Await::promise(function ($resolve, $reject) use ($player, $rolePlayer) {
+        return Await::promise(function ($resolve, $reject) use ($rolePlayer) {
             try {
                 $this->config->set($rolePlayer->getId(), $rolePlayer->jsonSerialize());
                 $this->config->save();
                 $resolve();
             } catch (JsonException) {
-                $reject(new SaveDataException("Error save data player {$player->getName()}"));
+                $reject(new SaveDataException("Error save data player {$rolePlayer->getName()}"));
             }
         });
     }
@@ -61,8 +63,8 @@ class YAMLSave extends IDataSaveRoleManager
         return Await::promise(function ($resolve, $reject) use ($id, $type, $data) {
             try {
                 if (!$this->config->exists($id, true)) {
-                    $rolePlayer = new RolePlayer($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
-                    $this->config->set(strtolower($id), ($rolePlayer)->jsonSerialize());
+                    $rolePlayer = new RolePlayerOffline($id, prefix: "", suffix: "", role: RoleManager::getInstance()->getDefaultRole()->getId(), subRoles: [], nameRoleCustom: null);
+                    $this->config->set($rolePlayer->getId(), $rolePlayer->jsonSerialize());
                     unset($rolePlayer);
                 }
                 $this->config->setNested($search = (strtolower($id) . "." . (match ($type) {

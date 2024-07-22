@@ -2,6 +2,7 @@
 
 namespace SenseiTarzan\RoleManager\Component;
 
+use Generator;
 use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\RoleManager\Class\Exception\RolePlayerNotFoundException;
@@ -161,9 +162,9 @@ class TextAttributeManager
      * @param Player $player
      * @param string $message
      * @param string|null $format
-     * @return \Generator
+     * @return Generator
      */
-    public function formatMessage(Player $player, string $message, string|null $format = null): \Generator
+    public function formatMessage(Player $player, string $message, string|null $format = null): Generator
     {
         return Await::promise(function ($resolve, $reject) use($player, $message, $format){
 
@@ -185,11 +186,11 @@ class TextAttributeManager
      * this method allows you to give the final formatting of the nameTag according to what you give or according to the role
      * @param Player $player
      * @param string|null $format
-     * @return void
+     * @return Generator
      */
-    public function formatNameTag(Player $player, string|null $format = null): \Generator
+    public function formatNameTag(Player $player, string|null $format = null): Generator
     {
-        return Await::promise(function ( $resolve, $reject) use($player, $format){
+        return Await::promise(function ($resolve, $reject) use($player, $format){
 
             $rolePlayer = RolePlayerManager::getInstance()->getPlayer($player);
             if ($rolePlayer === null){

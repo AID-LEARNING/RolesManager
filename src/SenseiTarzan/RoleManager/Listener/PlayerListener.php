@@ -16,10 +16,15 @@ use SOFe\AwaitGenerator\Await;
 class PlayerListener
 {
 
-    #[EventAttribute(EventPriority::LOWEST)]
+	public function __construct(private readonly bool $hasMiddleware)
+	{
+	}
+
+	#[EventAttribute(EventPriority::LOWEST)]
     public function onJoin(PlayerJoinEvent $event): void
     {
-        DataManager::getInstance()->getDataSystem()->loadDataPlayer($event->getPlayer());
+		if (!$this->hasMiddleware)
+			DataManager::getInstance()->getDataSystem()->loadDataPlayer($event->getPlayer());
     }
 
     #[EventAttribute(EventPriority::LOWEST)]
