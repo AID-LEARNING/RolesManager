@@ -3,6 +3,7 @@
 *.phar
 *.zip
 *.pdf
+*.bat
 start.sh
 test/*
 .idea
@@ -15,3 +16,4 @@ src/SenseiTarzan/LanguageSystem
 .poggit.yml
 README.md
 out
+.php-cs-fixer.cache

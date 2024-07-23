@@ -1,5 +1,26 @@
 <?php
 
+/*
+ *
+ *            _____ _____         _      ______          _____  _   _ _____ _   _  _____
+ *      /\   |_   _|  __ \       | |    |  ____|   /\   |  __ \| \ | |_   _| \ | |/ ____|
+ *     /  \    | | | |  | |______| |    | |__     /  \  | |__) |  \| | | | |  \| | |  __
+ *    / /\ \   | | | |  | |______| |    |  __|   / /\ \ |  _  /| . ` | | | | . ` | | |_ |
+ *   / ____ \ _| |_| |__| |      | |____| |____ / ____ \| | \ \| |\  |_| |_| |\  | |__| |
+ *  /_/    \_\_____|_____/       |______|______/_/    \_\_|  \_\_| \_|_____|_| \_|\_____|
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author AID-LEARNING
+ * @link https://github.com/AID-LEARNING
+ *
+ */
+
+declare(strict_types=1);
+
 namespace SenseiTarzan\RoleManager\Commands\subCommand;
 
 use CortexPE\Commando\args\TargetPlayerArgument;
@@ -18,40 +39,39 @@ use SOFe\AwaitGenerator\Await;
 class addsubRoleSubCommand extends BaseSubCommand
 {
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepare() : void
+	{
+		$this->setPermission("rolemanager.command.add-sub-role.permission");
+		$this->registerArgument(0, new TargetPlayerArgument(name: "target"));
+		$this->registerArgument(1, new RoleArgument(name: "name"));
 
-    /**
-     * @inheritDoc
-     */
-    protected function prepare(): void
-    {
-        $this->setPermission("rolemanager.command.add-sub-role.permission");
-        $this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-        $this->registerArgument(1, new RoleArgument(name: "name"));
+	}
 
-    }
+	/**
+	 * @throws CancelEventException
+	 */
+	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void
+	{
+		if (!$this->testPermissionSilent($sender)){
+			return;
+		}
+		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
+		$role = $args['name'];
+		if (!$role instanceof Role){
+			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
+			return;
+		}
+		Await::g2c(RoleManager::getInstance()->addSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target){
+			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::add_sub_roles_sender($target, $role = $resultUpdate->data)));
+			if ($resultUpdate->online){
+				$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::add_sub_roles_target($role)));
+			}
+		}, function (){
 
-    /**
-     * @throws CancelEventException
-     */
-    public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
-    {
-        if (!$this->testPermissionSilent($sender)){
-            return;
-        }
-        $target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-        $role = $args['name'];
-        if (!$role instanceof Role){
-            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
-            return;
-        }
-        Await::g2c(RoleManager::getInstance()->addSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target){
-            $sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::add_sub_roles_sender($target, $role = $resultUpdate->data)));
-            if ($resultUpdate->online){
-                $target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::add_sub_roles_target($role)));
-            }
-        }, function (){
+		});
 
-        });
-
-    }
+	}
 }

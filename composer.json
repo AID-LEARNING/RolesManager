@@ -1,0 +1,24 @@
+{
+  "name": "aid-learning/rolemanager",
+  "autoload": {
+    "psr-4": {
+      "SenseiTarzan\\RoleManager\\": "src/SenseiTarzan/RoleManager"
+    }
+  },
+  "authors": [
+    {
+      "name": "Sensei Tarzan",
+      "email": "gabrielcaptari0@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-pmmpthread": "*"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^v3.59.3",
+    "pocketmine/pocketmine-mp": "5.17.0"
+  },
+  "scripts": {
+    "php-cs-fixer": "D:\\PHP-8.0-Windows-x64\\PM5\\bin\\php\\php.exe php-cs-fixer-v3.phar fix"
+  }
+}
