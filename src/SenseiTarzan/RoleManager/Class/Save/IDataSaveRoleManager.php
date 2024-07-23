@@ -57,7 +57,7 @@ abstract class IDataSaveRoleManager implements IDataSave
 	final public function loadDataPlayerByMiddleware(Player|string $player) : Generator
 	{
 		assert($player instanceof Player);
-		return Await::promise(function($resolve) use ($player) {
+		return Await::promise(function($resolve, $reject) use ($player) {
 			Await::g2c($this->createPromiseLoadDataPlayer($player), function (RolePlayer $rolePlayer) use ($player, $resolve) {
 				RolePlayerManager::getInstance()->loadPlayer($player, $rolePlayer);
 				if (EventLoadRolePlayer::hasHandlers()) {
@@ -65,9 +65,7 @@ abstract class IDataSaveRoleManager implements IDataSave
 					$event->call();
 				}
 				$resolve();
-			}, function (Throwable $exception) use ($player, $resolve) {
-				$resolve($exception);
-			});
+			},$reject);
 		});
 	}
 
