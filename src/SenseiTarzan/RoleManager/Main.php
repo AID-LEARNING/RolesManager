@@ -51,8 +51,6 @@ class Main extends PluginBase
 
 	use SingletonTrait;
 
-	private AwaitStd $awaitStd;
-
 	public function onLoad() : void
 	{
 		self::setInstance($this);
@@ -69,7 +67,6 @@ class Main extends PluginBase
 			default => null
 		});
 		new TextAttributeManager();
-		$this->awaitStd = AwaitStd::init($this);
 	}
 
 	protected function onEnable() : void
@@ -89,10 +86,5 @@ class Main extends PluginBase
 		}
 
 		$this->getServer()->getCommandMap()->register("rolemanager", new RoleCommands($this, "role", "Role Command", ["group"]));
-	}
-
-	public function getAwaitStd() : AwaitStd
-	{
-		return $this->awaitStd;
 	}
 }
