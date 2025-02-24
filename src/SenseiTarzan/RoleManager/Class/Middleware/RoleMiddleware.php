@@ -21,39 +21,35 @@
 
 declare(strict_types=1);
 
-namespace SenseiTarzan\RoleManager\Event;
+namespace SenseiTarzan\RoleManager\Class\Middleware;
 
-use pocketmine\event\Cancellable;
-use pocketmine\event\CancellableTrait;
-use pocketmine\event\player\PlayerEvent;
-use pocketmine\player\Player;
-use SenseiTarzan\RoleManager\Class\Role\Role;
+use Generator;
+use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
+use SenseiTarzan\DataBase\Component\DataManager;
+use SenseiTarzan\Middleware\Class\AttributeMiddlewarePriority;
+use SenseiTarzan\Middleware\Class\IMiddleWare;
+use SenseiTarzan\Middleware\Class\MiddlewarePriority;
 
-	class EventChangeRole extends PlayerEvent implements Cancellable
+#[AttributeMiddlewarePriority(MiddlewarePriority::LOWEST)]
+class RoleMiddleware implements IMiddleWare
 {
-	use CancellableTrait;
 
-	public function __construct( Player $player, private Role $oldRole, private Role $newRole)
+	public function getName() : string
 	{
-		$this->player = $player;
+		return "Role Middleware";
 	}
 
 	/**
-	 * @return ?Role
+	 * @inheritDoc
 	 */
-	public function getOldRole() : ?Role
+	public function onDetectPacket() : string
 	{
-		return $this->oldRole;
+		return SetLocalPlayerAsInitializedPacket::class;
 	}
 
-	public function getNewRole() : Role
+	public function getPromise(DataPacketReceiveEvent $event) : Generator
 	{
-		return $this->newRole;
+		return DataManager::getInstance()->getDataSystem()->loadDataPlayerByMiddleware($event->getOrigin()->getPlayer());
 	}
-
-	public function setNewRole(Role $newRole) : void
-	{
-		$this->newRole = $newRole;
-	}
-
 }

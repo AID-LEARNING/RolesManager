@@ -28,6 +28,7 @@ use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\PermissionsArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
@@ -36,7 +37,7 @@ use SOFe\AwaitGenerator\Await;
 use function count;
 use function explode;
 
-class addPermissionsSubCommands extends BaseSubCommand
+class removePermissionsSubCommand extends BaseSubCommand
 {
 
 	/**
@@ -44,26 +45,29 @@ class addPermissionsSubCommands extends BaseSubCommand
 	 */
 	protected function prepare() : void
 	{
-		$this->setPermission("rolemanager.command.add-permissions.permission");
+		$this->setPermission("rolemanager.command.sub-permissions.permission");
 		$this->registerArgument(0, new TargetPlayerArgument(name: "target"));
 		$this->registerArgument(1, new PermissionsArgument(name: "perm"));
 
 	}
 
+	/**
+	 * @throws CancelEventException
+	 */
 	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void
 	{
 		if (!$this->testPermissionSilent($sender)) {
 			return;
 		}
 		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-		$perm = explode(";", $args['perm'] ?? "");
+		$perm = explode(";", $args['perm']);$perm = explode(";", $args['perm'] ?? "");
 		if (count($perm) === 0) {
 			return;
 		}
-		Await::g2c(RoleManager::getInstance()->addPermissionPlayer($target, $perm), function (ResultUpdate $resultUpdate) use ($sender, $target, $perm) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::add_permissions_sender($target, $perm)));
+		Await::g2c(RoleManager::getInstance()->removePermissionPlayer($target, $perm), function (ResultUpdate $resultUpdate) use ($sender, $target, $perm) {
+			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::remove_permissions_sender($target, $perm)));
 			if ($resultUpdate->online) {
-				$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::add_permissions_target($perm)));
+				$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_permissions_target($perm)));
 			}
 		}, function () use ($sender, $target, $perm) {
 

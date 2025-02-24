@@ -21,39 +21,11 @@
 
 declare(strict_types=1);
 
-namespace SenseiTarzan\RoleManager\Event;
+namespace SenseiTarzan\RoleManager\Class\Exception;
 
-use pocketmine\event\Cancellable;
-use pocketmine\event\CancellableTrait;
-use pocketmine\event\player\PlayerEvent;
-use pocketmine\player\Player;
-use SenseiTarzan\RoleManager\Class\Role\Role;
+use Exception;
 
-	class EventChangeRole extends PlayerEvent implements Cancellable
+class RolePlayerNotFoundException extends Exception
 {
-	use CancellableTrait;
-
-	public function __construct( Player $player, private Role $oldRole, private Role $newRole)
-	{
-		$this->player = $player;
-	}
-
-	/**
-	 * @return ?Role
-	 */
-	public function getOldRole() : ?Role
-	{
-		return $this->oldRole;
-	}
-
-	public function getNewRole() : Role
-	{
-		return $this->newRole;
-	}
-
-	public function setNewRole(Role $newRole) : void
-	{
-		$this->newRole = $newRole;
-	}
 
 }

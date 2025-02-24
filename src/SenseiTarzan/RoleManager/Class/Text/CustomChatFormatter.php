@@ -21,39 +21,19 @@
 
 declare(strict_types=1);
 
-namespace SenseiTarzan\RoleManager\Event;
+namespace SenseiTarzan\RoleManager\Class\Text;
 
-use pocketmine\event\Cancellable;
-use pocketmine\event\CancellableTrait;
-use pocketmine\event\player\PlayerEvent;
-use pocketmine\player\Player;
-use SenseiTarzan\RoleManager\Class\Role\Role;
+use pocketmine\lang\Translatable;
+use pocketmine\player\chat\ChatFormatter;
 
-	class EventChangeRole extends PlayerEvent implements Cancellable
+readonly class CustomChatFormatter implements ChatFormatter
 {
-	use CancellableTrait;
-
-	public function __construct( Player $player, private Role $oldRole, private Role $newRole)
+	public function __construct(private string $message)
 	{
-		$this->player = $player;
 	}
 
-	/**
-	 * @return ?Role
-	 */
-	public function getOldRole() : ?Role
+	public function format(string $username, string $message) : Translatable|string
 	{
-		return $this->oldRole;
+		return $this->message;
 	}
-
-	public function getNewRole() : Role
-	{
-		return $this->newRole;
-	}
-
-	public function setNewRole(Role $newRole) : void
-	{
-		$this->newRole = $newRole;
-	}
-
 }

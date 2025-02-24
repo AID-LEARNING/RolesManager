@@ -1,37 +1,52 @@
 <?php
 
+/*
+ *
+ *            _____ _____         _      ______          _____  _   _ _____ _   _  _____
+ *      /\   |_   _|  __ \       | |    |  ____|   /\   |  __ \| \ | |_   _| \ | |/ ____|
+ *     /  \    | | | |  | |______| |    | |__     /  \  | |__) |  \| | | | |  \| | |  __
+ *    / /\ \   | | | |  | |______| |    |  __|   / /\ \ |  _  /| . ` | | | | . ` | | |_ |
+ *   / ____ \ _| |_| |__| |      | |____| |____ / ____ \| | \ \| |\  |_| |_| |\  | |__| |
+ *  /_/    \_\_____|_____/       |______|______/_/    \_\_|  \_\_| \_|_____|_| \_|\_____|
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author AID-LEARNING
+ * @link https://github.com/AID-LEARNING
+ *
+ */
+
+declare(strict_types=1);
+
 namespace SenseiTarzan\RoleManager\Commands\subCommand;
 
-use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
-use pocketmine\Server;
-use SenseiTarzan\LanguageSystem\Component\LanguageManager;
-use SenseiTarzan\RoleManager\Commands\args\PermissionsArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
-use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 
 class reloadRoleSubCommand extends BaseSubCommand
 {
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepare() : void
+	{
+		$this->setPermission("rolemanager.command.reload-role.permission");
 
-    /**
-     * @inheritDoc
-     */
-    protected function prepare(): void
-    {
-        $this->setPermission("rolemanager.command.reload-role.permission");
+	}
 
-    }
+	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void
+	{
+		if (!$this->testPermissionSilent($sender)){
+			return;
+		}
+		RoleManager::getInstance()->loadRoles();
+		RolePlayerManager::getInstance()->reloadPermissions();
 
-    public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
-    {
-        if (!$this->testPermissionSilent($sender)){
-            return;
-        }
-        RoleManager::getInstance()->loadRoles();
-        RolePlayerManager::getInstance()->reloadPermissions();
-
-    }
+	}
 }

@@ -27,33 +27,30 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 use pocketmine\event\player\PlayerEvent;
 use pocketmine\player\Player;
-use SenseiTarzan\RoleManager\Class\Role\Role;
+use function array_values;
 
-	class EventChangeRole extends PlayerEvent implements Cancellable
+class EventSetPermissions extends PlayerEvent implements Cancellable
 {
 	use CancellableTrait;
 
-	public function __construct( Player $player, private Role $oldRole, private Role $newRole)
+	public function __construct(Player $player, private array $permissions)
 	{
 		$this->player = $player;
 	}
 
-	/**
-	 * @return ?Role
-	 */
-	public function getOldRole() : ?Role
+	public function getPermissions() : array
 	{
-		return $this->oldRole;
+		return array_values($this->permissions);
 	}
 
-	public function getNewRole() : Role
+	public function setPermissions(array $permissions) : void
 	{
-		return $this->newRole;
+		$this->permissions = $permissions;
 	}
 
-	public function setNewRole(Role $newRole) : void
+	public function getPlayer() : Player
 	{
-		$this->newRole = $newRole;
+		return $this->player;
 	}
 
 }
