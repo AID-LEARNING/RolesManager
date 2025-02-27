@@ -42,6 +42,7 @@ use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
 use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SenseiTarzan\RoleManager\Utils\Utils;
 use SOFe\AwaitGenerator\Await;
@@ -65,7 +66,7 @@ class RoleManager
 	use SingletonTrait;
 
 	/** @var Role[] */
-	public array $roles = [];
+	private array $roles = [];
 
 	private PluginBase $plugin;
 
@@ -75,14 +76,12 @@ class RoleManager
 	/** @var array|array[]|false[]|null[]|string[]|string[][] */
 	private array $listExcludeName;
 
-	public function __construct(PluginBase $pl)
+	public function __construct(Main $pl)
 	{
 		self::setInstance($this);
 		$this->plugin = $pl;
 		$this->config = $pl->getConfig();
-
-		$this->server = Server::getInstance();
-		$this->loadRoles();
+        $this->loadRoles();
 		$this->listExcludeName = Utils::rolesStringToIdArray(array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
 	}
 
@@ -91,21 +90,15 @@ class RoleManager
 		$this->roles = [];
 		unset($this->defaultRole);
 		RoleArgument::$VALUES = [];
-		foreach (PathScanner::scanDirectoryToConfig(Path::join($this->plugin->getDataFolder(), "roles/"), ['yml']) as $info_role) {
-			$this->addRole(Role::create(
-				$this->plugin,
-				$info_role->get('name'),
-				$info_role->get('image', ""),
-				$info_role->get('default'),
-				$info_role->get('priority', 0),
-				array_map(fn (string $role) => Utils::roleStringToId($role), $info_role->get('heritages', [])),
-				$info_role->get('permissions', []),
-				$info_role->get('chatFormat', ""),
-				$info_role->get('nameTagFormat', ""),
-				$info_role->get('changeName'),
-				$info_role
-			));
-		}
+        Await::f2c(function () {
+            yield from $this->plugin->getConfigManager()->getConfigSystem()?->loadConfig();
+        }, function () {
+            foreach ($this->roles as $_ => $role) {
+                RoleArgument::$VALUES[strtolower($role->getName())] = $role->getId();
+                if ($role->isDefault())
+                    $this->defaultRole = $role;
+            }
+        });
 	}
 
 	public function createRole(string $name, string $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName) : Role
@@ -138,7 +131,9 @@ class RoleManager
 		}
 		if ($role->isDefault() && (!isset($this->defaultRole) || $overwrite)) {
 			RoleArgument::$VALUES['default'] = $role->getId();
-			$this->setDefaultRole($role);
+			Await::g2c($this->setDefaultRole($role), null, function () use ($role) {
+
+            });
 		}
 		RoleArgument::$VALUES[strtolower($role->getName())] = $role->getId();
 		$this->roles[$role->getId()] = $role;
@@ -149,15 +144,25 @@ class RoleManager
 		return $this->defaultRole;
 	}
 
-	public function setDefaultRole(Role $defaultRole) : void
+	public function setDefaultRole(Role $defaultRole) : Generator
 	{
-		if (isset($this->defaultRole)) {
-			$this->defaultRole->setDefault(false);
-			if (!$defaultRole->isDefault()) {
-				$defaultRole->setDefault(true);
-			}
-		}
-		$this->defaultRole = $defaultRole;
+        return Await::promise(function ($resolve, $reject) use ($defaultRole) {
+            Await::f2c(function () use ($defaultRole) {
+                if (isset($this->defaultRole)) {
+                    if($this->defaultRole === $defaultRole)
+                        throw new \Exception();
+                    yield from $this->defaultRole->setDefault(false);
+                    if (!$defaultRole->isDefault()) {
+                        yield from  $defaultRole->setDefault(true);
+                    }
+                }elseif (!$defaultRole->isDefault()) {
+                    yield from  $defaultRole->setDefault(true);
+                }
+            }, function () use ($defaultRole, $resolve) {
+                $this->defaultRole = $defaultRole;
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function getExcludeNameRole() : array
@@ -504,8 +509,9 @@ class RoleManager
 				$this->permissionsRoleIndexUI($player, $role);
 				return;
 			}
-			$role->addPermission($permissions);
-			$this->permissionsRoleAddUI($player, $role);
+			Await::g2c($role->addPermission($permissions), function () use ($player, $role) : void {
+                $this->permissionsRoleAddUI($player, $role);
+            });
 		});
 
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_add($role->getName())));
@@ -522,8 +528,9 @@ class RoleManager
 				$this->permissionsRoleIndexUI($player, $role);
 				return;
 			}
-			$role->removePermission($permissions);
-			$this->permissionsRoleRemoveUI($player, $role);
+			Await::g2c($role->removePermission($permissions), function () use ($player, $role) : void {
+                $this->permissionsRoleRemoveUI($player, $role);
+            });
 		});
 
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_permissions_remove($role->getName())));
@@ -559,8 +566,9 @@ class RoleManager
 				$this->heritagesRoleIndexUI($player, $role);
 				return;
 			}
-			$role->addHeritages($permissions);
-			$this->heritagesRoleAddUI($player, $role);
+			Await::g2c($role->addHeritages($permissions), function () use ($player, $role) : void {
+                $this->heritagesRoleAddUI($player, $role);
+            }, function () {});
 		});
 
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_heritages_add($role->getName())));
@@ -577,8 +585,9 @@ class RoleManager
 				$this->heritagesRoleIndexUI($player, $role);
 				return;
 			}
-			$role->removeHeritages($permissions);
-			$this->heritagesRoleRemoveUI($player, $role);
+			Await::g2c($role->removeHeritages($permissions), function () use ($player, $role) : void {
+                $this->heritagesRoleRemoveUI($player, $role);
+            }, function () {});
 		});
 
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_heritages_remove($role->getName())));
@@ -596,19 +605,19 @@ class RoleManager
 			}
 			list($changeName, $image, $priority, $chatFormat, $nameTagFormat) = $data;
 			if ($changeName !== $role->isChangeName()) {
-				$role->setChangeName($changeName);
+                Await::g2c($role->setChangeName($changeName), null, function (){});
 			}
 			if ($image !== $role->getImage()->getPath()) {
-				$role->setImage($image);
+				Await::g2c($role->setImage($image), null, function (){});
 			}
 			if ($priority !== $role->getPriority()) {
-				$role->setPriority(intval($priority));
+                Await::g2c($role->setPriority(intval($priority)), null, function (){});
 			}
 			if ($chatFormat !== $role->getChatFormat()) {
-				$role->setChatFormat($chatFormat);
+                Await::g2c($role->setChatFormat($chatFormat), null, function (){});
 			}
 			if ($nameTagFormat !== $role->getNameTagFormat()) {
-				$role->setNameTagFormat($nameTagFormat);
+                Await::g2c($role->setNameTagFormat($nameTagFormat), null, function (){});
 			}
 		});
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_general($role->getName())));
@@ -630,8 +639,9 @@ class RoleManager
 				$this->modifiedRoleIndexUI($player, $role);
 				return;
 			}
-			$this->setDefaultRole($role);
-			$player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_default_role_sender($role->getName())));
+			Await::g2c($this->setDefaultRole($role), function () use($player, $role) : void {
+                $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::set_default_role_sender($role->getName())));
+            }, function (){});
 		});
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_default($role->getName())));
 		$ui->setContent(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::description_modified_default()));
@@ -650,11 +660,12 @@ class RoleManager
 				$this->modifiedRoleIndexUI($player, $role);
 				return;
 			}
-			if (@unlink($role->getConfig()->getPath())) {
-				unset($this->roles[$role->getId()]);
-				$player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_role($role->getName())));
-				$this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name), array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
-			}
+			Await::g2c($role->remove(), function () use($role, $player) : void {
+                unset($this->roles[$role->getId()]);
+                if ($player->isConnected())
+                    $player->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::remove_role($role->getName())));
+                $this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name), array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
+            }, function (){});
 		});
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_modified_remove($role->getName())));
 		$ui->setContent(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::description_modified_remove()));

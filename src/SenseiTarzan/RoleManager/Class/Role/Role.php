@@ -23,13 +23,16 @@ declare(strict_types=1);
 
 namespace SenseiTarzan\RoleManager\Class\Role;
 
+use Generator;
 use JsonException;
 use JsonSerializable;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\Config;
 use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\RoleManager\Component\RoleManager;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Utils\Utils;
+use SOFe\AwaitGenerator\Await;
 use Symfony\Component\Filesystem\Path;
 use function array_diff;
 use function array_merge;
@@ -51,35 +54,27 @@ class Role  implements  JsonSerializable
 		private array $permissions,
 		string $chatFormat,
 		string $nameTagFormat,
-		private bool $changeName,
-		private Config $config
+		private bool $changeName
 	)
 	{
 		$this->chatFormat = str_replace('\n', "\n", $chatFormat);
 		$this->nameTagFormat = str_replace('\n', "\n", $nameTagFormat);
 	}
 
-	public static function create(Plugin $plugin, string $name, string $image,bool $default,float $priority,array $heritages,array $permissions, string $chatFormat, string $nameTagFormat,bool $changeName, ?Config $config = null) : Role
+	public static function create(string $name, string $image,bool $default,float $priority,array $heritages,array $permissions, string $chatFormat, string $nameTagFormat,bool $changeName) : Role
 	{
-		$role = new Role(
-			Utils::roleStringToId($name = Utils::removeColorInRole($name)),
-			$name,
-			IconForm::create($image),
-			$default,
-			$priority,
-			$heritages,
-			$permissions,
-			$chatFormat,
-			$nameTagFormat,
-			$changeName,
-			$config ??= new Config(Path::join($plugin->getDataFolder(), "roles/", "$name.role.yml"))
-		);
-		if (empty($config->getAll())) {
-			$config->setAll($role->jsonSerialize());
-			$config->save();
-		}
-		return $role;
-
+		return new Role(
+            Utils::roleStringToId($name = Utils::removeColorInRole($name)),
+            $name,
+            IconForm::create($image),
+            $default,
+            $priority,
+            $heritages,
+            $permissions,
+            $chatFormat,
+            $nameTagFormat,
+            $changeName
+        );
 	}
 
 	public function getId() : string
@@ -97,11 +92,14 @@ class Role  implements  JsonSerializable
 		return $this->image;
 	}
 
-	public function setImage(string $image) : void
+	public function setImage(string $image) : Generator
 	{
-		$this->image = IconForm::create($image);
-		$this->config->set("image", $image);
-		$this->config->save();
+        return Await::promise(function ($resolve, $reject) use($image){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "image", $image), function (string $data) use ($resolve) {
+                $this->image = IconForm::create($data);
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function isDefault() : bool
@@ -109,11 +107,14 @@ class Role  implements  JsonSerializable
 		return $this->default;
 	}
 
-	public function setDefault(bool $default) : void
+	public function setDefault(bool $default) : Generator
 	{
-		$this->default = $default;
-		$this->config->set("default", $default);
-		$this->config->save();
+        return Await::promise(function ($resolve, $reject) use($default) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "default", $default), function (bool $data) use ($resolve) {
+                $this->default = $data;
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function getPriority() : float
@@ -121,10 +122,18 @@ class Role  implements  JsonSerializable
 		return $this->priority;
 	}
 
-	public function setPriority(int $priority) : void{
-		$this->priority = $priority;
+	public function setPriority(int $priority) : Generator{
+        return Await::promise(function ($resolve, $reject) use($priority){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "priority", $priority), function (int $data) use ($resolve) {
+                $this->priority = $data;
+                $resolve();
+            }, $reject);
+        });
+
+        /*
 		$this->config->set("priority", $priority);
 		$this->config->save();
+         */
 	}
 
 	public function getHeritages() : array
@@ -132,16 +141,32 @@ class Role  implements  JsonSerializable
 		return $this->heritages;
 	}
 
-	public function setHeritages(array $heritages) : void{
-		$this->heritages = array_values($heritages);
+	public function setHeritages(array $heritages) : Generator{
+        return Await::promise(function ($resolve, $reject) use($heritages){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.heritages", $this->heritages), function (array $data) use ($resolve) {
+                $this->heritages = $data;
+                $resolve();
+            }, $reject);
+        });
+        /*
 		$this->config->set("heritages", $this->getHeritages());
-		$this->config->save();
+		$this->config->save();*/
 	}
-	public function addHeritages(array|string $heritages) : void{
-		$this->setHeritages(array_merge($this->heritages, (is_array($heritages) ? $heritages: [$heritages])));
+	public function addHeritages(array|string $heritages) : Generator{
+        return Await::promise(function ($resolve, $reject) use($heritages){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "add.heritages", $heritages), function (array $data) use ($resolve) {
+                $this->heritages = $data;
+                $resolve();
+            }, $reject);
+        });
 	}
-	public function removeHeritages(array|string $heritages) : void{
-		$this->setHeritages(array_diff($this->heritages, (is_array($heritages) ? $heritages: [$heritages])));
+	public function removeHeritages(array|string $heritages) : Generator{
+        return Await::promise(function ($resolve, $reject) use($heritages){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "sub.heritages", $heritages), function (array $data) use ($resolve) {
+                $this->heritages = $data;
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function getAllHeritages() : array
@@ -159,18 +184,31 @@ class Role  implements  JsonSerializable
 		return $this->permissions;
 	}
 
-	public function setPermissions(array $permissions) : void{
-		$this->permissions = array_values($permissions);
-		$this->config->set("permissions", $this->getPermissions());
-		$this->config->save();
+	public function setPermissions(array $permissions) : Generator{
+        return Await::promise(function ($resolve, $reject) use($permissions){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.permissions", array_values($permissions)), function (array $data) use ($resolve) {
+                $this->permissions = $data;
+                $resolve();
+            }, $reject);
+	    });
+    }
+
+	public function addPermission(array|string $permission) : Generator{
+        return Await::promise(function ($resolve, $reject) use($permission){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "add.permissions", (is_array($permission) ? $permission: [$permission])), function (array $data) use ($resolve) {
+                $this->permissions = $data;
+                $resolve();
+            }, $reject);
+        });
 	}
 
-	public function addPermission(array|string $permission) : void{
-		$this->setPermissions(array_merge($this->permissions , (is_array($permission) ? $permission: [$permission])));
-	}
-
-	public function removePermission(array|string $permission) : void{
-		$this->setPermissions(array_diff($this->permissions, (is_array($permission) ? $permission: [$permission])));
+	public function removePermission(array|string $permission) : Generator{
+        return Await::promise(function ($resolve, $reject) use($permission){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "sub.permissions", (is_array($permission) ? $permission: [$permission])), function (array $data) use ($resolve) {
+                $this->permissions = $data;
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function getHeritagesPermissions() : array
@@ -193,11 +231,14 @@ class Role  implements  JsonSerializable
 		return $this->chatFormat;
 	}
 
-	public function setChatFormat(string $chatFormat) : void
+	public function setChatFormat(string $chatFormat) : Generator
 	{
-		$this->chatFormat = str_replace('\n', "\n", $chatFormat);
-		$this->config->set("chatFormat", $this->getChatFormat());
-		$this->config->save();
+        return Await::promise(function ($resolve, $reject) use($chatFormat){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "chatFormat", $chatFormat), function (string $data) use ($resolve) {
+                $this->chatFormat = str_replace('\n', "\n", $data);
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function getNameTagFormat() : string
@@ -205,11 +246,14 @@ class Role  implements  JsonSerializable
 		return $this->nameTagFormat;
 	}
 
-	public function setNameTagFormat(string $nameTagFormat) : void
+	public function setNameTagFormat(string $nameTagFormat) : Generator
 	{
-		$this->nameTagFormat = str_replace('\n', "\n", $nameTagFormat);
-		$this->config->set("nameTagFormat", $this->getNameTagFormat());
-		$this->config->save();
+        return Await::promise(function ($resolve, $reject) use($nameTagFormat){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "nameTagFormat", $nameTagFormat), function (string $data) use ($resolve) {
+                $this->nameTagFormat = str_replace('\n', "\n", $data);
+                $resolve();
+            }, $reject);
+        });
 	}
 
 	public function isChangeName() : bool
@@ -220,17 +264,22 @@ class Role  implements  JsonSerializable
 	/**
 	 * @throws JsonException
 	 */
-	public function setChangeName(bool $changeName = false) : void
+	public function setChangeName(bool $changeName = false) : Generator
 	{
-		$this->changeName = $changeName;
-		$this->config->set("changeName", $changeName);
-		$this->config->save();
+        return Await::promise(function ($resolve, $reject) use($changeName){
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "changeName", $changeName), function (bool $data) use ($resolve) {
+                $this->changeName = $data;
+                $resolve();
+            }, $reject);
+        });
 	}
 
-	public function getConfig() : Config
-	{
-		return $this->config;
-	}
+	public function remove(): Generator
+    {
+        return Await::promise(function ($resolve, $reject) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "delete", null), $resolve, $reject);
+        });
+    }
 
 	public function jsonSerialize() : array
 	{

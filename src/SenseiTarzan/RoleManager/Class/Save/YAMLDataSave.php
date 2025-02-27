@@ -41,7 +41,7 @@ use function in_array;
 use function is_string;
 use function strtolower;
 
-class YAMLSave extends IDataSaveRoleManager
+class YAMLDataSave extends IDataSaveRoleManager
 {
 
 	private Config $config;

@@ -21,11 +21,36 @@
 
 declare(strict_types=1);
 
-namespace SenseiTarzan\RoleManager\Class\Exception;
+namespace SenseiTarzan\RoleManager\Class\Save;
 
-use Exception;
+use Generator;
+use pocketmine\player\Player;
+use pocketmine\plugin\PluginBase;
+use pocketmine\utils\Config;
+use pocketmine\utils\TextFormat;
+use SenseiTarzan\DataBase\Class\IConfigSave;
+use SenseiTarzan\DataBase\Class\IDataSave;
+use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Component\RolePlayerManager;
+use SenseiTarzan\RoleManager\Event\EventLoadRolePlayer;
+use SOFe\AwaitGenerator\Await;
+use Throwable;
+use function assert;
+use function mb_strtolower;
 
-class RolePlayerNotFoundException extends Exception
+abstract class IConfigSaveRole implements IConfigSave
 {
+
+    public function __construct(
+        protected string $dataFolder,
+    )
+    {
+
+    }
+
+    abstract public function newConfig(Role $role): Generator;
+
+    abstract public function createConfigRole(string $name): Generator;
 
 }

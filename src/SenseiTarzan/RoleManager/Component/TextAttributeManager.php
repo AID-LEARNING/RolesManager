@@ -137,7 +137,7 @@ class TextAttributeManager
 			}elseif (class_exists("\\DaPigGuy\\PiggyFactions\\PiggyFactions")){
 				$factionName = PiggyFactions::getInstance()->getPlayerManager()->getPlayer($player)?->getFaction()?->getName();
 			}
-			$format = str_replace($search, $factionName ?? "", $format);
+			$format = str_replace($search, $factionName ?? "Wilderness", $format);
 
 		}));
 		$this->registerNameTagAttribute(new NameTagAttribute("factionRank", function (Player $player, string $search, string &$format) : void {

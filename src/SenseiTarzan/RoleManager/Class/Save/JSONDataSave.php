@@ -41,7 +41,7 @@ use function in_array;
 use function is_string;
 use function strtolower;
 
-class JSONSave extends IDataSaveRoleManager
+class JSONDataSave extends IDataSaveRoleManager
 {
 
 	private Config $config;

@@ -26,14 +26,16 @@ namespace SenseiTarzan\RoleManager;
 use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
+use SenseiTarzan\DataBase\Component\ConfigManager;
 use SenseiTarzan\DataBase\Component\DataManager;
 use SenseiTarzan\ExtraEvent\Component\EventLoader;
 use SenseiTarzan\LanguageSystem\Component\LanguageManager;
 use SenseiTarzan\Middleware\Component\MiddlewareManager;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Middleware\RoleMiddleware;
-use SenseiTarzan\RoleManager\Class\Save\JSONSave;
-use SenseiTarzan\RoleManager\Class\Save\YAMLSave;
+use SenseiTarzan\RoleManager\Class\Save\JSONDataSave;
+use SenseiTarzan\RoleManager\Class\Save\YAMLConfigSave;
+use SenseiTarzan\RoleManager\Class\Save\YAMLDataSave;
 use SenseiTarzan\RoleManager\Commands\RoleCommands;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\TextAttributeManager;
@@ -51,6 +53,9 @@ class Main extends PluginBase
 
 	use SingletonTrait;
 
+    private DataManager $dataManager;
+    private ConfigManager $configManager;
+
 	public function onLoad() : void
 	{
 		self::setInstance($this);
@@ -59,13 +64,19 @@ class Main extends PluginBase
 				@$this->saveResource(str_replace($search, "", $file));
 			}
 		}
+        $this->dataManager = new DataManager();
+        $this->configManager = new ConfigManager();
 		new LanguageManager($this);
-		new RoleManager($this);
-		DataManager::getInstance()->setDataSystem(match (strtolower($this->getConfig()->get("data-type", "json"))) {
-			"yml", "yaml" => new YAMLSave($this->getDataFolder()),
-			"json" => new JSONSave($this->getDataFolder()),
+        $this->dataManager->setDataSystem(match (strtolower($this->getConfig()->get("data-type", "json"))) {
+			"yml", "yaml" => new YAMLDataSave($this->getDataFolder()),
+			"json" => new JSONDataSave($this->getDataFolder()),
 			default => null
 		});
+        $this->configManager->setConfigSystem(match (strtolower($this->getConfig()->get("config-type", "yml"))) {
+            "yml", "yaml" => new YAMLConfigSave($this->getDataFolder()),
+            default => null
+        });
+        new RoleManager($this);
 		new TextAttributeManager();
 	}
 
@@ -87,4 +98,20 @@ class Main extends PluginBase
 
 		$this->getServer()->getCommandMap()->register("rolemanager", new RoleCommands($this, "role", "Role Command", ["group"]));
 	}
+
+    /**
+     * @return DataManager
+     */
+    public function getDataManager(): DataManager
+    {
+        return $this->dataManager;
+    }
+
+    /**
+     * @return ConfigManager
+     */
+    public function getConfigManager(): ConfigManager
+    {
+        return $this->configManager;
+    }
 }

@@ -25,7 +25,7 @@ namespace SenseiTarzan\RoleManager\Class\Exception;
 
 use Exception;
 
-class RolePlayerNotFoundException extends Exception
+class SaveDataException extends Exception
 {
 
 }
