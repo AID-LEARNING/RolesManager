@@ -51,6 +51,5 @@ abstract class IConfigSaveRole implements IConfigSave
 
     abstract public function newConfig(Role $role): Generator;
 
-    abstract public function createConfigRole(string $name): Generator;
 
 }

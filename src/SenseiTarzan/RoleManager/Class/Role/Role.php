@@ -95,7 +95,7 @@ class Role  implements  JsonSerializable
 	public function setImage(string $image) : Generator
 	{
         return Await::promise(function ($resolve, $reject) use($image){
-            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "image", $image), function (string $data) use ($resolve) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.image", $image), function (string $data) use ($resolve) {
                 $this->image = IconForm::create($data);
                 $resolve();
             }, $reject);
@@ -110,7 +110,7 @@ class Role  implements  JsonSerializable
 	public function setDefault(bool $default) : Generator
 	{
         return Await::promise(function ($resolve, $reject) use($default) {
-            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "default", $default), function (bool $data) use ($resolve) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.default", $default), function (bool $data) use ($resolve) {
                 $this->default = $data;
                 $resolve();
             }, $reject);
@@ -124,7 +124,7 @@ class Role  implements  JsonSerializable
 
 	public function setPriority(int $priority) : Generator{
         return Await::promise(function ($resolve, $reject) use($priority){
-            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "priority", $priority), function (int $data) use ($resolve) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.priority", $priority), function (int $data) use ($resolve) {
                 $this->priority = $data;
                 $resolve();
             }, $reject);
@@ -234,7 +234,7 @@ class Role  implements  JsonSerializable
 	public function setChatFormat(string $chatFormat) : Generator
 	{
         return Await::promise(function ($resolve, $reject) use($chatFormat){
-            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "chatFormat", $chatFormat), function (string $data) use ($resolve) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.chatFormat", $chatFormat), function (string $data) use ($resolve) {
                 $this->chatFormat = str_replace('\n', "\n", $data);
                 $resolve();
             }, $reject);
@@ -249,7 +249,7 @@ class Role  implements  JsonSerializable
 	public function setNameTagFormat(string $nameTagFormat) : Generator
 	{
         return Await::promise(function ($resolve, $reject) use($nameTagFormat){
-            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "nameTagFormat", $nameTagFormat), function (string $data) use ($resolve) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.nameTagFormat", $nameTagFormat), function (string $data) use ($resolve) {
                 $this->nameTagFormat = str_replace('\n', "\n", $data);
                 $resolve();
             }, $reject);
@@ -267,7 +267,7 @@ class Role  implements  JsonSerializable
 	public function setChangeName(bool $changeName = false) : Generator
 	{
         return Await::promise(function ($resolve, $reject) use($changeName){
-            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "changeName", $changeName), function (bool $data) use ($resolve) {
+            Await::g2c(Main::getInstance()->getConfigManager()->getConfigSystem()?->update($this->id, "set.changeName", $changeName), function (bool $data) use ($resolve) {
                 $this->changeName = $data;
                 $resolve();
             }, $reject);

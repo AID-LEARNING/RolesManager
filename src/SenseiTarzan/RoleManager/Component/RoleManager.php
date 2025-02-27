@@ -40,6 +40,7 @@ use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Class\Role\RolePlayer;
+use SenseiTarzan\RoleManager\Class\Save\IConfigSaveRole;
 use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
 use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Main;
@@ -101,22 +102,30 @@ class RoleManager
         });
 	}
 
-	public function createRole(string $name, string $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName) : Role
+	public function createRole(string $name, string $image, bool $default, float $priority, array $heritages, array $permissions, string $chatFormat, string $nameTagFormat, bool $changeName) : Generator
 	{
 
-		$this->addRole($role = Role::create(
-			$this->plugin,
-			$name,
-			$image,
-			$default,
-			$priority,
-			Utils::rolesStringToIdArray($heritages),
-			$permissions,
-			$chatFormat,
-			$nameTagFormat,
-			$changeName
-		), true);
-		return $role;
+
+		return Await::promise(function ($resolve, $reject) use($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName) : void {
+            Await::f2c(function ()  use($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName): Generator{
+                $role = Role::create(
+                    $name,
+                    $image,
+                    $default,
+                    $priority,
+                    Utils::rolesStringToIdArray($heritages),
+                    $permissions,
+                    $chatFormat,
+                    $nameTagFormat,
+                    $changeName
+                );
+                $configSystem = $this->plugin->getConfigManager()->getConfigSystem();
+                if ($configSystem instanceof IConfigSaveRole)
+                    yield from $configSystem->newConfig($role);
+                yield from $this->addRole($role, true);
+                return $role;
+            }, $resolve, $reject);
+        });
 	}
 
 	private function getPermissionInString() : array
@@ -124,19 +133,21 @@ class RoleManager
 		return array_map(fn (Permission $value) => $value->getName(), PermissionManager::getInstance()->getPermissions());
 	}
 
-	public function addRole(Role $role, bool $overwrite = false) : void
+	public function addRole(Role $role, bool $overwrite = false) : Generator
 	{
-		if (array_key_exists($role->getId(), $this->getRoles())) {
-			return;
-		}
-		if ($role->isDefault() && (!isset($this->defaultRole) || $overwrite)) {
-			RoleArgument::$VALUES['default'] = $role->getId();
-			Await::g2c($this->setDefaultRole($role), null, function () use ($role) {
-
-            });
-		}
-		RoleArgument::$VALUES[strtolower($role->getName())] = $role->getId();
-		$this->roles[$role->getId()] = $role;
+		return Await::promise(function ($resolve, $reject) use($role, $overwrite) : void {
+            Await::f2c(function () use ($role, $overwrite, $resolve, $reject) : Generator {
+                if (array_key_exists($role->getId(), $this->getRoles())) {
+                    return ;
+                }
+                if ($role->isDefault() && (!isset($this->defaultRole) || $overwrite)) {
+                    RoleArgument::$VALUES['default'] = $role->getId();
+                    yield from $this->setDefaultRole($role);
+                }
+                RoleArgument::$VALUES[strtolower($role->getName())] = $role->getId();
+                $this->roles[$role->getId()] = $role;
+            }, $resolve, $reject);
+        });
 	}
 
 	public function getDefaultRole() : Role
@@ -411,15 +422,16 @@ class RoleManager
 			$nameTagFormat = $args[11];
 			$changeName = $args[12];
 
-			$player->sendMessage(
-				LanguageManager::getInstance()->getTranslateWithTranslatable(
-					$player,
-					CustomKnownTranslationFactory::message_create_role(
-						$this->createRole($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName)->getName()
-					)
-				)
-			);
-			$this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name), array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
+            Await::g2c($this->createRole($name, $image, $default, $priority, $heritages, $permissions, $chatFormat, $nameTagFormat, $changeName), function (Role $role) use($player){
+                $player->sendMessage(
+                    LanguageManager::getInstance()->getTranslateWithTranslatable(
+                        $player,
+                        CustomKnownTranslationFactory::message_create_role(
+                            $role->getName()
+                    )
+                ));
+			    $this->listExcludeName = array_map(fn (string $name) => mb_strtolower($name), array_merge($this->config->get("exclude-name-role", []), $this->getRoles(true, true)));
+            });
 		});
 		$ui->setTitle(LanguageManager::getInstance()->getTranslateWithTranslatable($player, CustomKnownTranslationFactory::title_create_role()));
 		$ui->addInput("name Role", "King");// 0

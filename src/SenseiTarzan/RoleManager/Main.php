@@ -25,6 +25,7 @@ namespace SenseiTarzan\RoleManager;
 
 use CortexPE\Commando\PacketHooker;
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\SingletonTrait;
 use SenseiTarzan\DataBase\Component\ConfigManager;
 use SenseiTarzan\DataBase\Component\DataManager;
@@ -76,7 +77,6 @@ class Main extends PluginBase
             "yml", "yaml" => new YAMLConfigSave($this->getDataFolder()),
             default => null
         });
-        new RoleManager($this);
 		new TextAttributeManager();
 	}
 
@@ -90,11 +90,14 @@ class Main extends PluginBase
 		$hasMiddleware = $this->getServer()->getPluginManager()->getPlugin("Middleware") !== null;
 		if ($hasMiddleware)
 			MiddlewareManager::getInstance()->addMiddleware(new RoleMiddleware());
-		EventLoader::loadEventWithClass($this, new PlayerListener($hasMiddleware));
+		EventLoader::loadEventWithClass($this, new PlayerListener($hasMiddleware, $this->dataManager));
 
 		if ($this->getConfig()->get("nametag-task-tick", 20)) {
 			$this->getScheduler()->scheduleRepeatingTask(new NameTagTask(), 20);
 		}
+        $this->getScheduler()->scheduleTask(new ClosureTask(function () {
+            new RoleManager($this);
+        }));
 
 		$this->getServer()->getCommandMap()->register("rolemanager", new RoleCommands($this, "role", "Role Command", ["group"]));
 	}

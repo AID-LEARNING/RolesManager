@@ -84,7 +84,7 @@ class JSONDataSave extends IDataSaveRoleManager
 		});
 	}
 	/*
-	 * Fatal error: Declaration of SenseiTarzan\RoleManagerSQL\Class\Save\SQLSave::createPromiseSaveDataPlayer(SenseiTarzan\RoleManager\Class\Role\RolePlayer $rolePlayer): Generator must be compatible with SenseiTarzan\RoleManager\Class\Save\IDataSaveRoleManager::createPromiseSaveDataPlayer(pocketmine\player\Player|string $player, SenseiTarzan\RoleManager\Class\Role\RolePlayer $rolePlayer): Generator in phar:///home/container/plugins/RoleManagerSQL (1).phar/src/SenseiTarzan/RoleManagerSQL/Class/Save/SQLSave.php on line 66
+	 * Fatal error: Declaration of SenseiTarzan\RoleManagerSQL\Class\Save\SQLDataSave::createPromiseSaveDataPlayer(SenseiTarzan\RoleManager\Class\Role\RolePlayer $rolePlayer): Generator must be compatible with SenseiTarzan\RoleManager\Class\Save\IDataSaveRoleManager::createPromiseSaveDataPlayer(pocketmine\player\Player|string $player, SenseiTarzan\RoleManager\Class\Role\RolePlayer $rolePlayer): Generator in phar:///home/container/plugins/RoleManagerSQL (1).phar/src/SenseiTarzan/RoleManagerSQL/Class/Save/SQLDataSave.php on line 66
 	 */
 
 	public function createPromiseUpdateOffline(string $id, string $type, mixed $data) : Generator

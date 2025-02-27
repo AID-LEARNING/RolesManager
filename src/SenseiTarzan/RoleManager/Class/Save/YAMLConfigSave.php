@@ -28,6 +28,7 @@ use Hoa\Math\Util;
 use JsonException;
 use pocketmine\player\Player;
 use pocketmine\utils\Config;
+use SenseiTarzan\IconUtils\IconForm;
 use SenseiTarzan\Path\PathScanner;
 use SenseiTarzan\RoleManager\Class\Exception\SaveDataException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
@@ -75,25 +76,26 @@ class YAMLConfigSave extends IConfigSaveRole
     public function loadConfig(): Generator
     {
         return Await::promise(function ($resolve, $reject): void {
-            foreach (PathScanner::scanDirectoryToConfig($this->roleFolder, ["yml"]) as $_ => $config){
-                $name = $config->get("name");
-                if (!$name)
-                    continue;
-                RoleManager::getInstance()->addRole(new Role(
-                    $id = Utils::roleStringToId($name = Utils::removeColorInRole($name)),
-                    $config->get('name'),
-                    $config->get('image', ""),
-                    $config->get('default'),
-                    $config->get('priority', 0),
-                    array_map(fn (string $role) => Utils::roleStringToId($role), $config->get('heritages', [])),
-                    $config->get('permissions', []),
-                    $config->get('chatFormat', ""),
-                    $config->get('nameTagFormat', ""),
-                    $config->get('changeName')
-                ));
-                $this->configs[$id] = $config;
-            }
-            $resolve();
+            Await::f2c(function() {
+                foreach (PathScanner::scanDirectoryToConfig($this->roleFolder, ["yml"]) as $_ => $config){
+                    $name = $config->get("name");
+                    if (!$name)
+                        continue;
+                    yield from RoleManager::getInstance()->addRole(new Role(
+                        $id = Utils::roleStringToId($name = Utils::removeColorInRole($name)),
+                        $name,
+                        IconForm::create($config->get('image', "")),
+                        $config->get('default'),
+                        $config->get('priority', 0),
+                        array_map(fn (string $role) => Utils::roleStringToId($role), $config->get('heritages', [])),
+                        $config->get('permissions', []),
+                        $config->get('chatFormat', ""),
+                        $config->get('nameTagFormat', ""),
+                        $config->get('changeName')
+                    ));
+                    $this->configs[$id] = $config;
+                }
+            }, $resolve, $reject);
         });
     }
 
@@ -104,14 +106,6 @@ class YAMLConfigSave extends IConfigSaveRole
     public function update(string $id, string $type, mixed $data): mixed
     {
         return Await::promise(function ($resolve, $reject) use ($id, $type, $data) {
-            if ($type === "create"){
-                if(
-                    $data instanceof Role
-                ){
-                    Await::g2c($this->newConfig($data), $resolve, $reject);
-                }
-                return;
-            }
             if(!isset($this->configs[$id])) {
                 $reject();
                 return ;
@@ -128,27 +122,32 @@ class YAMLConfigSave extends IConfigSaveRole
                     }
                     break;
                 }
-                case "image": {
+                case "set.image": {
                     $config->set("image", $data);
                     $info = $data;
                     break;
                 }
-                case "default": {
+                case "set.default": {
                     $config->set("default", $data);
                     $info = $data;
                     break;
                 }
-                case "priority": {
+                case "set.priority": {
                     $config->set("priority", $data);;
                     $info = $data;
                     break;
                 }
-                case "chatFormat": {
+                case "set.chatFormat": {
                     $config->set("chatFormat", $data);
                     $info = $data;
                     break;
                 }
-                case "nameTagFormat": {
+                case "set.changeName": {
+                    $config->set("changeName", $data);
+                    $info = $data;
+                    break;
+                }
+                case "set.nameTagFormat": {
                     $config->set("nameTagFormat", $data);
                     $info = $data;
                     break;
@@ -187,10 +186,5 @@ class YAMLConfigSave extends IConfigSaveRole
             $config->save();
             $resolve($info);
         });
-    }
-
-    public function createConfigRole(string $name): Generator
-    {
-        // TODO: Implement createConfigRole() method.
     }
 }
