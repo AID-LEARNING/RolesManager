@@ -46,7 +46,7 @@ class removesubRoleSubCommand extends BaseSubCommand
 	{
 		$this->setPermission("rolemanager.command.remove-sub-role.permission");
 		$this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-		$this->registerArgument(1, new RoleArgument(name: "name"));
+		$this->registerArgument(1, new RoleArgument(name: "role"));
 
 	}
 
@@ -59,7 +59,7 @@ class removesubRoleSubCommand extends BaseSubCommand
 			return;
 		}
 		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-		$role = $args['name'];
+		$role = $args['role'];
 		if (!$role instanceof Role){
 			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
 			return;

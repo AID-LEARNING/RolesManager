@@ -35,7 +35,14 @@ use SenseiTarzan\Middleware\Class\MiddlewarePriority;
 class RoleMiddleware implements IMiddleWare
 {
 
-	public function getName() : string
+
+    public function __construct(
+        private DataManager $dataManager,
+    )
+    {
+    }
+
+    public function getName() : string
 	{
 		return "Role Middleware";
 	}
@@ -50,6 +57,6 @@ class RoleMiddleware implements IMiddleWare
 
 	public function getPromise(DataPacketReceiveEvent $event) : Generator
 	{
-		return DataManager::getInstance()->getDataSystem()->loadDataPlayerByMiddleware($event->getOrigin()->getPlayer());
+		return $this->dataManager->getDataSystem()->loadDataPlayerByMiddleware($event->getOrigin()->getPlayer());
 	}
 }

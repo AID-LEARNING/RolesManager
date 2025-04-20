@@ -39,6 +39,7 @@ use SenseiTarzan\RoleManager\Event\EventChangeNameCustom;
 use SenseiTarzan\RoleManager\Event\EventChangePrefix;
 use SenseiTarzan\RoleManager\Event\EventChangeRole;
 use SenseiTarzan\RoleManager\Event\EventChangeSuffix;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Utils\Utils;
 use SOFe\AwaitGenerator\Await;
 use function array_diff;
@@ -91,7 +92,7 @@ class RolePlayer implements JsonSerializable
 				return;
 			}
 			Await::f2c(function () use ($event) : Generator {
-				yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "prefix", $prefix = $event->getNewPrefix());
+				yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOnline($this->getId(), "prefix", $prefix = $event->getNewPrefix());
 				return $prefix;
 			},  function (string $prefix) use ($resolve){
 				$this->prefix = $prefix;
@@ -118,7 +119,7 @@ class RolePlayer implements JsonSerializable
 				return;
 			}
 			Await::f2c(function () use($event) : Generator{
-				yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "suffix", $suffix = $event->getNewSuffix());
+				yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOnline($this->getId(), "suffix", $suffix = $event->getNewSuffix());
 				return $suffix;
 			}, function (string $suffix) use ($resolve){
 				$this->suffix = $suffix;
@@ -186,7 +187,7 @@ class RolePlayer implements JsonSerializable
 			}
 			$roles = array_values($roles);
 			Await::f2c(function () use ($roles) : Generator {
-				yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "subRoles", $roles);
+				yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOnline($this->getId(), "subRoles", $roles);
 				return $roles;
 			}, function (array $roles) use ($resolve){
 				$this->subRoles = $roles;
@@ -215,12 +216,14 @@ class RolePlayer implements JsonSerializable
 				return;
 			}
 			Await::f2c(function () use ($event, $role) : Generator {
-				yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "role", (($role = $event->getNewRole())->getId()));
+				yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOnline($this->getId(), "role", (($role = $event->getNewRole())->getId()));
 				return $role;
 			}, function (Role $role) use ($resolve){
 				$this->role = $role->getId();
 				$resolve($role);
-			}, $reject);
+			}, function (\Throwable $throwable) use ($reject) {
+                $reject($throwable);
+            });
 		});
 	}
 
@@ -257,7 +260,7 @@ class RolePlayer implements JsonSerializable
 			}
 
 			Await::f2c(function () use ($event, $role) : Generator {
-				yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $newName = $event->getNewNameCustom());
+				yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOnline($this->getId(), "nameRoleCustom", $newName = $event->getNewNameCustom());
 				return $newName;
 			}, function (string $newName) use ($resolve) {
 				$this->nameRoleCustom = $newName;
@@ -299,7 +302,7 @@ class RolePlayer implements JsonSerializable
 					$permissions = [$permissions];
 				}
 				$permissions = array_values($permissions);
-				yield from DataManager::getInstance()->getDataSystem()->updateOnline($this->getId(), "permissions", $permissions);
+				yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOnline($this->getId(), "permissions", $permissions);
 				return $permissions;
 			}, function (array $permissions) use ($resolve){
 				$this->permissions = $permissions;

@@ -50,11 +50,11 @@ class RoleArgument extends StringEnumArgument
 
 	public function getTypeName() : string
 	{
-		return "role";
+		return "stringrole";
 	}
 
 	public function getEnumName() : string
 	{
-		return "role";
+		return "stringrole";
 	}
 }

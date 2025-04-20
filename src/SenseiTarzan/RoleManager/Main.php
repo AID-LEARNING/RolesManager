@@ -89,7 +89,7 @@ class Main extends PluginBase
 
 		$hasMiddleware = $this->getServer()->getPluginManager()->getPlugin("Middleware") !== null;
 		if ($hasMiddleware)
-			MiddlewareManager::getInstance()->addMiddleware(new RoleMiddleware());
+			MiddlewareManager::getInstance()->addMiddleware(new RoleMiddleware($this->dataManager));
 		EventLoader::loadEventWithClass($this, new PlayerListener($hasMiddleware, $this->dataManager));
 
 		if ($this->getConfig()->get("nametag-task-tick", 20)) {

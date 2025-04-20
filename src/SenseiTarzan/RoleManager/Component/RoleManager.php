@@ -95,7 +95,7 @@ class RoleManager
             yield from $this->plugin->getConfigManager()->getConfigSystem()?->loadConfig();
         }, function () {
             foreach ($this->roles as $_ => $role) {
-                RoleArgument::$VALUES[strtolower($role->getName())] = $role->getId();
+                RoleArgument::$VALUES[$role->getId()] = $role->getId();
                 if ($role->isDefault())
                     $this->defaultRole = $role;
             }
@@ -374,7 +374,7 @@ class RoleManager
 					} elseif (is_array($data)) {
 						$data = array_values(array_map(fn (Role|string $value) => ($value instanceof Role ? $value->getId() : $value), $data));
 					}
-					yield from DataManager::getInstance()->getDataSystem()->updateOffline($player, $type, $data);
+					yield from Main::getInstance()->getDataManager()->getDataSystem()->updateOffline($player, $type, $data);
 					return new ResultUpdate(false, $raw);
 				}
 				$online = $player instanceof Player && $player->isConnected();
