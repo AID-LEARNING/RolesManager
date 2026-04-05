@@ -23,17 +23,20 @@ declare(strict_types=1);
 
 namespace SenseiTarzan\RoleManager\Commands\subCommand;
 
-use CortexPE\Commando\args\RawStringArgument;
 use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Main;
+use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
+use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
+use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SOFe\AwaitGenerator\Await;
 
-class setPrefixSubCommand extends BaseSubCommand
+class RemovesubRoleSubCommand extends BaseSubCommand
 {
 
 	/**
@@ -41,28 +44,33 @@ class setPrefixSubCommand extends BaseSubCommand
 	 */
 	protected function prepare() : void
 	{
-		$this->setPermission("rolemanager.command.prefix.permission");
+		$this->setPermission("rolemanager.command.remove-sub-role.permission");
 		$this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-		$this->registerArgument(1, new RawStringArgument(name: "prefix"));
+		$this->registerArgument(1, new RoleArgument(name: "role"));
 
 	}
 
+	/**
+	 * @throws CancelEventException
+	 */
 	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void
 	{
-		if (!$this->testPermissionSilent($sender)) {
+		if (!$this->testPermissionSilent($sender)){
 			return;
 		}
-		$target = Server::getInstance()->getPlayerExact($args['target']);
-		if ($target === null) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
+		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
+		$role = $args['role'];
+		if (!$role instanceof Role){
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
 			return;
 		}
-		$prefix = $args['prefix'];
-		Await::g2c(RoleManager::getInstance()->setPrefix($target, $prefix), function (string $prefix) use ($sender, $target) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_prefix_sender($target, $prefix)));
-			$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_prefix_target($prefix)));
-		}, function () use ($sender, $target, $prefix) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_prefix_sender($target, $prefix)));
+		Await::g2c(RoleManager::getInstance()->removeSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target){
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::remove_sub_roles_sender($target, $role = $resultUpdate->data)));
+			if ($resultUpdate->online){
+				$target->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::remove_sub_roles_target($role)));
+			}
+		}, function (){
+
 		});
 	}
 }

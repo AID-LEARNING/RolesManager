@@ -28,7 +28,7 @@ use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Exception\RoleFilteredNameCustomException;
 use SenseiTarzan\RoleManager\Class\Exception\RoleNoNameCustomException;
@@ -36,7 +36,7 @@ use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SOFe\AwaitGenerator\Await;
 
-class setNameRoleCustomSubCommand extends BaseSubCommand
+class SetNameRoleCustomSubCommand extends BaseSubCommand
 {
 
 	/**
@@ -57,21 +57,21 @@ class setNameRoleCustomSubCommand extends BaseSubCommand
 		}
 		$target = Server::getInstance()->getPlayerExact($args['target']);
 		if ($target === null) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
 			return;
 		}
 		$nameCustom = $args['nameCustom'];
 		Await::g2c(RoleManager::getInstance()->setNameRoleCustom($target, $nameCustom), function (string $nameCustom) use ($sender, $target) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $nameCustom)));
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_name_role_sender($target, $nameCustom)));
 		},[
 			RoleNoNameCustomException::class => function () use ($sender, $target, $nameCustom) {
-				$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
+				$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
 			},
 			CancelEventException::class => function () use ($sender, $target, $nameCustom) {
-				$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
+				$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_sender($target, $nameCustom)));
 			},
 			RoleFilteredNameCustomException::class => function () use ($sender, $target, $nameCustom) {
-				$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_is_filtered_sender($target, $nameCustom)));
+				$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_name_role_is_filtered_sender($target, $nameCustom)));
 			}
 		]);
 

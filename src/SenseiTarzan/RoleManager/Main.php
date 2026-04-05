@@ -54,6 +54,8 @@ class Main extends PluginBase
 
 	use SingletonTrait;
 
+
+    private LanguageManager $languageManager;
     private DataManager $dataManager;
     private ConfigManager $configManager;
 
@@ -67,7 +69,7 @@ class Main extends PluginBase
 		}
         $this->dataManager = new DataManager();
         $this->configManager = new ConfigManager();
-		new LanguageManager($this);
+		$this->languageManager = new LanguageManager($this);
         $this->dataManager->setDataSystem(match (strtolower($this->getConfig()->get("data-type", "json"))) {
 			"yml", "yaml" => new YAMLDataSave($this->getDataFolder()),
 			"json" => new JSONDataSave($this->getDataFolder()),
@@ -85,7 +87,7 @@ class Main extends PluginBase
 		if (!PacketHooker::isRegistered()) {
 			PacketHooker::register($this);
 		}
-		LanguageManager::getInstance()->loadCommands("role");
+        $this->languageManager->loadCommands("role");
 
 		$hasMiddleware = $this->getServer()->getPluginManager()->getPlugin("Middleware") !== null;
 		if ($hasMiddleware)
@@ -101,6 +103,14 @@ class Main extends PluginBase
 
 		$this->getServer()->getCommandMap()->register("rolemanager", new RoleCommands($this, "role", "Role Command", ["group"]));
 	}
+
+    /**
+     * @return LanguageManager
+     */
+    public function getLanguageManager(): LanguageManager
+    {
+        return $this->languageManager;
+    }
 
     /**
      * @return DataManager

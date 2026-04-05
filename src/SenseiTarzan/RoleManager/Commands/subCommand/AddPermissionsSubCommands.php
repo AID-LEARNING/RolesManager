@@ -23,17 +23,20 @@ declare(strict_types=1);
 
 namespace SenseiTarzan\RoleManager\Commands\subCommand;
 
-use CortexPE\Commando\args\RawStringArgument;
 use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Main;
+use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
+use SenseiTarzan\RoleManager\Commands\args\PermissionsArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SOFe\AwaitGenerator\Await;
+use function count;
+use function explode;
 
-class setSuffixSubCommand extends BaseSubCommand
+class AddPermissionsSubCommands extends BaseSubCommand
 {
 
 	/**
@@ -41,9 +44,9 @@ class setSuffixSubCommand extends BaseSubCommand
 	 */
 	protected function prepare() : void
 	{
-		$this->setPermission("rolemanager.command.suffix.permission");
+		$this->setPermission("rolemanager.command.add-permissions.permission");
 		$this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-		$this->registerArgument(1, new RawStringArgument(name: "suffix"));
+		$this->registerArgument(1, new PermissionsArgument(name: "perm"));
 
 	}
 
@@ -52,19 +55,18 @@ class setSuffixSubCommand extends BaseSubCommand
 		if (!$this->testPermissionSilent($sender)) {
 			return;
 		}
-		$target = Server::getInstance()->getPlayerExact($args['target']);
-		if ($target === null) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_player_disconnected($args['target'])));
+		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
+		$perm = explode(";", $args['perm'] ?? "");
+		if (count($perm) === 0) {
 			return;
 		}
-		$suffix = $args['suffix'];
-		Await::g2c(RoleManager::getInstance()->setSuffix($target, $suffix), function (string $suffix) use ($sender, $target) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_suffix_sender($target, $suffix)));
-			$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_suffix_target($suffix)));
-		}, function () use ($sender, $target, $suffix) {
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::error_set_suffix_sender($target, $suffix)));
+		Await::g2c(RoleManager::getInstance()->addPermissionPlayer($target, $perm), function (ResultUpdate $resultUpdate) use ($sender, $target, $perm) {
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::add_permissions_sender($target, $perm)));
+			if ($resultUpdate->online) {
+				$target->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::add_permissions_target($perm)));
+			}
+		}, function () use ($sender, $target, $perm) {
+
 		});
-
 	}
-
 }

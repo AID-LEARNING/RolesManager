@@ -27,16 +27,16 @@ use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use SenseiTarzan\LanguageSystem\Component\LanguageManager;
-use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
-use SenseiTarzan\RoleManager\Class\Role\Role;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
-use SenseiTarzan\RoleManager\Commands\args\RoleArgument;
+use SenseiTarzan\RoleManager\Commands\args\PermissionsArgument;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SOFe\AwaitGenerator\Await;
+use function count;
+use function explode;
 
-class removesubRoleSubCommand extends BaseSubCommand
+class SetPermissionsSubCommand extends BaseSubCommand
 {
 
 	/**
@@ -44,33 +44,30 @@ class removesubRoleSubCommand extends BaseSubCommand
 	 */
 	protected function prepare() : void
 	{
-		$this->setPermission("rolemanager.command.remove-sub-role.permission");
+		$this->setPermission("rolemanager.command.set-permissions.permission");
 		$this->registerArgument(0, new TargetPlayerArgument(name: "target"));
-		$this->registerArgument(1, new RoleArgument(name: "role"));
+		$this->registerArgument(1, new PermissionsArgument(name: "perm"));
 
 	}
 
-	/**
-	 * @throws CancelEventException
-	 */
 	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void
 	{
 		if (!$this->testPermissionSilent($sender)){
 			return;
 		}
 		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
-		$role = $args['role'];
-		if (!$role instanceof Role){
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
+		$perm = explode(";", $args['perm'] ?? "");
+		if (count($perm) === 0) {
 			return;
 		}
-		Await::g2c(RoleManager::getInstance()->removeSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target){
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::remove_sub_roles_sender($target, $role = $resultUpdate->data)));
-			if ($resultUpdate->online){
-				$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::remove_sub_roles_target($role)));
+		Await::g2c(RoleManager::getInstance()->setPermissionPlayer($target, $perm), function (ResultUpdate $resultUpdate) use ($sender, $target) {
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender, CustomKnownTranslationFactory::set_permissions_sender($target, $perm = $resultUpdate->data)));
+			if ($resultUpdate->online) {
+				$target->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::set_permissions_target($perm)));
 			}
-		}, function (){
+		}, function () use ($sender, $target, $perm) {
 
 		});
+
 	}
 }

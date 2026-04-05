@@ -27,7 +27,7 @@ use CortexPE\Commando\args\TargetPlayerArgument;
 use CortexPE\Commando\BaseSubCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use SenseiTarzan\LanguageSystem\Component\LanguageManager;
+use SenseiTarzan\RoleManager\Main;
 use SenseiTarzan\RoleManager\Class\Exception\CancelEventException;
 use SenseiTarzan\RoleManager\Class\Role\Role;
 use SenseiTarzan\RoleManager\Class\Save\ResultUpdate;
@@ -36,7 +36,7 @@ use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Utils\CustomKnownTranslationFactory;
 use SOFe\AwaitGenerator\Await;
 
-class addsubRoleSubCommand extends BaseSubCommand
+class AddsubRoleSubCommand extends BaseSubCommand
 {
 
 	/**
@@ -61,13 +61,13 @@ class addsubRoleSubCommand extends BaseSubCommand
 		$target = Server::getInstance()->getPlayerExact($args['target']) ?? $args['target'];
 		$role = $args['role'];
 		if (!$role instanceof Role){
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::role_not_found($role)));
 			return;
 		}
 		Await::g2c(RoleManager::getInstance()->addSubRolesPlayer($target, $role), function (ResultUpdate $resultUpdate) use ($sender, $target){
-			$sender->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::add_sub_roles_sender($target, $role = $resultUpdate->data)));
+			$sender->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($sender,CustomKnownTranslationFactory::add_sub_roles_sender($target, $role = $resultUpdate->data)));
 			if ($resultUpdate->online){
-				$target->sendMessage(LanguageManager::getInstance()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::add_sub_roles_target($role)));
+				$target->sendMessage(Main::getInstance()->getLanguageManager()->getTranslateWithTranslatable($target, CustomKnownTranslationFactory::add_sub_roles_target($role)));
 			}
 		}, function (){
 

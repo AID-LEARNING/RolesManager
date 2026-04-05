@@ -27,8 +27,7 @@ use CortexPE\Commando\BaseSubCommand;
 use CortexPE\Commando\constraint\InGameRequiredConstraint;
 use pocketmine\command\CommandSender;
 use SenseiTarzan\RoleManager\Component\RoleManager;
-
-class modifiedRoleSubCommand extends BaseSubCommand
+class CreateRoleSubCommand extends BaseSubCommand
 {
 
 	/**
@@ -36,7 +35,7 @@ class modifiedRoleSubCommand extends BaseSubCommand
 	 */
 	protected function prepare() : void
 	{
-		$this->setPermission("rolemanager.command.modified-role.permission");
+		$this->setPermission("rolemanager.command.create-role.permission");
 		$this->addConstraint(new InGameRequiredConstraint($this));
 	}
 
@@ -45,7 +44,7 @@ class modifiedRoleSubCommand extends BaseSubCommand
 		if (!$this->testPermissionSilent($sender)) {
 			return;
 		}
-		RoleManager::getInstance()->modifiedRoleSelectUI($sender);
+		RoleManager::getInstance()->createRoleUI($sender);
 
 	}
 }

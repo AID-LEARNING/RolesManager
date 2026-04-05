@@ -12,7 +12,8 @@
     }
   ],
   "require": {
-    "ext-pmmpthread": "*"
+    "ext-pmmpthread": "*",
+    "ext-mbstring": "*"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^v3.59.3",

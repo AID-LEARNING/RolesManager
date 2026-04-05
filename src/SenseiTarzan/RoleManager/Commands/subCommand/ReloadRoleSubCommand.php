@@ -28,7 +28,7 @@ use pocketmine\command\CommandSender;
 use SenseiTarzan\RoleManager\Component\RoleManager;
 use SenseiTarzan\RoleManager\Component\RolePlayerManager;
 
-class reloadRoleSubCommand extends BaseSubCommand
+class ReloadRoleSubCommand extends BaseSubCommand
 {
 
 	/**
